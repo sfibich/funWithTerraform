@@ -2,7 +2,7 @@ terraform {
 	backend "azurerm" {
 		storage_account_name = "mkluse2csetformnonprod01"
 		container_name = "terraform-state"
-		key = "terraform.tfstate"
+		key = "terraform.tfstate.sfibich.workmachine"
 	}
 }
 
@@ -97,10 +97,14 @@ resource "azurerm_linux_virtual_machine" "main" {
     azurerm_network_interface.internal.id,
   ]
 
+	os_profile {
+		custom_data = file(cloud-init01.sh)
+	}
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    sku       = "20.04-LTS"
     version   = "latest"
   }
 
