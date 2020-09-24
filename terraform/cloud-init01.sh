@@ -31,20 +31,6 @@ echo "complete: tigervnc-standalone-server" >> /tmp/cloud-init.log
 sudo apt-get install tigervnc-common tigervnc-xorg-extension tigervnc-viewer -y 
 echo "complete: tigernvc (the rest)" >> /tmp/cloud-init.log
 
-#VNCPASSWORD
-echo "installing: setting vncpassword" >> /tmp/cloud-init.log
-sudo chmod +x repos/configs/vncpassword.sh
-./vncpassword.sh >> /tmp/cloud-init.log
-
-echo "complete:vncpasswd" >> /tmp/cloud-init.log
-#VNC Serivce
-vncserver >> /tmp/cloud-init.log
-vncserver -kill :1 >> /tmp/cloud-init.log
-#mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
-cp repos/configs/xstartup .vnc/xstartup
-sudo chmod +x .vnc/xstartup
-echo "complete: vnc as a service" >> /tmp/cloud-init.log
-
 #RDP
 sudo apt-get install xrdp -y >> /tmp/cloud-init.log
 echo "complete: xrdp" >> /tmp/cloud-init.log
@@ -58,6 +44,21 @@ cd repos
 git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
 ls -la >> /tmp/cloud-init.log
 echo "complete: git"
+
+#VNCPASSWORD
+echo "installing: setting vncpassword" >> /tmp/cloud-init.log
+sudo chmod +x repos/configs/vncpassword.sh
+./configs/vncpassword.sh >> /tmp/cloud-init.log
+
+echo "complete:vncpasswd" >> /tmp/cloud-init.log
+#VNC Serivce
+vncserver >> /tmp/cloud-init.log
+vncserver -kill :1 >> /tmp/cloud-init.log
+#mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
+cp repos/configs/xstartup .vnc/xstartup
+sudo chmod +x .vnc/xstartup
+echo "complete: vnc as a service" >> /tmp/cloud-init.log
+
 #.vmrc FILE
 #.tmux.conf FILE
 #tmux-work.sh FILE
