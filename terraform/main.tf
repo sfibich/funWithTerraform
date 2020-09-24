@@ -12,7 +12,7 @@ provider "azurerm" {
 
 
 resource "azurerm_resource_group" "main" {
-  name     = "${var.prefix}-resources"
+  name     = "work-resources"
   location = var.location
 }
 
@@ -50,18 +50,6 @@ resource "azurerm_network_interface" "main" {
   }
 }
 
-resource "azurerm_network_interface" "internal" {
-  name                      = "${var.prefix}-nic2"
-  resource_group_name       = azurerm_resource_group.main.name
-  location                  = azurerm_resource_group.main.location
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.internal.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
 resource "azurerm_network_security_group" "access" {
   name                = "machine-access"
   location            = azurerm_resource_group.main.location
@@ -69,7 +57,7 @@ resource "azurerm_network_security_group" "access" {
   security_rule {
     access                     = "Allow"
     direction                  = "Inbound"
-    name                       = "tls"
+    name                       = "ssh"
     priority                   = 100
     protocol                   = "Tcp"
     source_port_range          = "*"
@@ -77,10 +65,35 @@ resource "azurerm_network_security_group" "access" {
     destination_port_range     = "22"
     destination_address_prefix = azurerm_network_interface.main.private_ip_address
   }
+
+	security_rule {
+    access                     = "Allow"
+    direction                  = "Inbound"
+    name                       = "vnc"
+    priority                   = 101
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    source_address_prefix      = "*"
+    destination_port_range     = "5901"
+    destination_address_prefix = azurerm_network_interface.main.private_ip_address
+  }
+
+	security_rule {
+    access                     = "Allow"
+    direction                  = "Inbound"
+    name                       = "rdp"
+    priority                   = 102
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    source_address_prefix      = "*"
+		destination_port_range     = "3389"
+    destination_address_prefix = azurerm_network_interface.main.private_ip_address
+  }
+
 }
 
 resource "azurerm_network_interface_security_group_association" "main" {
-  network_interface_id      = azurerm_network_interface.internal.id
+  network_interface_id      = azurerm_network_interface.main.id
   network_security_group_id = azurerm_network_security_group.access.id
 }
 
@@ -89,12 +102,11 @@ resource "azurerm_linux_virtual_machine" "main" {
   resource_group_name             = azurerm_resource_group.main.name
   location                        = azurerm_resource_group.main.location
   size                            = "Standard_F2"
-  admin_username                  = "adminuser"
-  admin_password                  = "P@ssw0rd1234!"
+  admin_username                  = "${var.username}"
+  admin_password                  = "${var.password}"
   disable_password_authentication = false
   network_interface_ids = [
-    azurerm_network_interface.main.id,
-    azurerm_network_interface.internal.id,
+    azurerm_network_interface.main.id
   ]
 
 	custom_data = base64encode(file("cloud-init01.sh"))
