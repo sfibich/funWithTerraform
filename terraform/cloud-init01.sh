@@ -13,8 +13,8 @@ sudo apt-get upgrade -y >> /tmp/cloud-init.log
 #sudo apt-get install xubuntu-desktop -y >> /tmp/cloud-init.log
 sudo apt-get install ubuntu-gnome-desktop -y >> /tmp/cloud-init.log
 sudo apt-get install xfce4 -y >> /tmp/cloud-init.log
-sudo apt-get install tigervnc-standalone-server >> /tmp/cloud-init.log
-sudo apt-get install tigervnc-common tigervnc-xorg-extension tigervnc-viewer >> /tmp/cloud-init.log
+sudo apt-get install tigervnc-standalone-server -y >> /tmp/cloud-init.log
+sudo apt-get install tigervnc-common tigervnc-xorg-extension tigervnc-viewer -y >> /tmp/cloud-init.log
 #VNCPASSWORD
 #VNC AUTOSTART
 mkdir ~/repos
@@ -22,13 +22,15 @@ mkdir ~/repos
 #.vmrc FILE
 #.tmux.conf FILE
 #tmux-work.sh FILE
-
+echo "complete: workstation" >> /tmp/cloud-init.log
 
 ############################
 # java                     #
 ############################
 sudo apt install default-jdk -y >> /tmp/cloud-init.log
 sudo snap install --classic eclipse >> /tmp/cloud-init.log
+echo "complete: java" >> /tmp/cloud-init.log
+
 
 ############################
 # Install Powershell       #
@@ -38,11 +40,12 @@ wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-pr
 echo "Register the Microsoft repository GPG keys" >> /tmp/cloud-init.log
 sudo dpkg -i packages-microsoft-prod.deb >> /tmp/cloud-init.log
 echo "Update the list of products" >> /tmp/cloud-init.log
-sudo apt-get update >> /tmp/cloud-init.log
+sudo apt-get update -y >> /tmp/cloud-init.log
 echo "Enable the universe repositories" >> /tmp/cloud-init.log
 sudo add-apt-repository universe >> /tmp/cloud-init.log
 echo "Install PowerShell" >> /tmp/cloud-init.log
 sudo apt-get install -y powershell >> /tmp/cloud-init.log
+echo "complete: powershell" >> /tmp/cloud-init.log
 
 
 
@@ -62,11 +65,11 @@ echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO 
 echo "Update repository information and install the azure-cli package" >> /tmp/cloud-init.log
 sudo apt-get update -y >> /tmp/cloud-init.log
 sudo apt-get install azure-cli -y >> /tmp/cloud-init.log
-
+echo "complete:az cli" >> /tmp/cloud-init.log
 
 ############################
 # finish cloud init        #
 ############################
 sudo apt-get autoremove -y >> /tmp/cloud-init.log
 
-echo "cloud init finish" >> /tmp/cloud-init.log
+echo "complete: cloud init finish" >> /tmp/cloud-init.log
