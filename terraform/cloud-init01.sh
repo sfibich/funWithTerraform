@@ -47,8 +47,8 @@ echo "complete: git"
 
 #VNCPASSWORD
 echo "installing: setting vncpassword" >> /tmp/cloud-init.log
-sudo chmod +x repos/configs/vncpassword.sh
-./configs/vncpassword.sh >> /tmp/cloud-init.log
+sudo chmod +x ./repos/configs/vncpassword.sh
+./repos/configs/vncpassword.sh >> /tmp/cloud-init.log
 
 echo "complete:vncpasswd" >> /tmp/cloud-init.log
 #VNC Serivce
