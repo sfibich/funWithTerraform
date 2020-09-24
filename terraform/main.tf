@@ -97,14 +97,12 @@ resource "azurerm_linux_virtual_machine" "main" {
     azurerm_network_interface.internal.id,
   ]
 
-	os_profile {
-		custom_data = file(cloud-init01.sh)
-	}
+	custom_data = base64encode(file("cloud-init01.sh"))
 
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "20.04-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 
