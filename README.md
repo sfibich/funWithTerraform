@@ -16,12 +16,12 @@ Currently this script buils a "Workstation" VM configured with:
 - VM DNS Name for the public IP
 - .vimrc, .tmux.conf configuration(my personal settings)
 
-##First time runninng Terraform
+### First time runninng Terraform
 1. run the in the /setup directory (follow instructions there)
 2. terraform init
 3. terraform new workspace WORKSPACENAME
 
-## Before Running Terraform
+### Before Running Terraform
 1. Log into Azure using connect-azAccount
 2. Adjust tenant if need be set-azContext -tenantId XXX-XXX
 3. Run the LoadAzureTerraformSecretsToEnvVars.ps1 passing it your Key Vault Name
@@ -31,8 +31,8 @@ Currently this script buils a "Workstation" VM configured with:
 7. Update the VNC password in the cloud-init.sh with your password
 6. Update the User path /home/adminuser with your /home/USERNAME in the cloud-init.sh file
 
-## Example Command
+### Example Command
 ./terraform apply -var="prefix=work-01" -var="password=NewP@ssw0rd1234"
 
-## Notes
+#### Notes
 1. Changing the user name variable will require manual changes to the cloud-init.sh
