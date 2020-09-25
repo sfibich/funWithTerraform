@@ -138,6 +138,8 @@ sudo chown -R adminuser .vnc
 sudo chown -R adminuser installs
 sudo chown -R adminuser repos
 
+ls -la /home/adminuser >> /tmp/cloud-init.log
+
 ############################
 # finish cloud init        #
 ############################
@@ -145,6 +147,8 @@ sudo apt-get autoremove -y
 
 echo "complete: cloud init finish" >> /tmp/cloud-init.log
 echo "check /var/log/apt/history.log for apt-get log info" >> /tmp/cloud-init.log
-echo "restarting" >> /tmp/cloud-init.log
+cp /tmp/cloud-init.log /home/adminuser/cloud-init.log
+
+echo "restarting" >> /home/adminuser/cloud-init.log
 
 sudo shutdown -r 0
