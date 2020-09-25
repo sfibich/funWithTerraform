@@ -1,6 +1,7 @@
 # funWithTerraform
 Scripts I've put together to help me learn terraform as well as other Azure technologies
 Currently this script buils a "Workstation" VM configured with:
+- Ubuntu 18.04 LTS
 - XFCE Desktop
 - VNC
 - RDP
