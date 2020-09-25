@@ -35,6 +35,7 @@ resource "azurerm_public_ip" "pip" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Dynamic"
+	domain_name_label   = "linux-${var.prefix}"
 }
 
 resource "azurerm_network_interface" "main" {
@@ -121,5 +122,21 @@ resource "azurerm_linux_virtual_machine" "main" {
   os_disk {
     storage_account_type = "Standard_LRS"
     caching              = "ReadWrite"
+  }
+}
+
+
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "main" {
+  virtual_machine_id = azurerm_linux_virtual_machine.main.id
+  location           = azurerm_resource_group.main.location
+  enabled            = true
+
+  daily_recurrence_time = "2305"
+  timezone              = "Eastern Standard Time"
+
+  notification_settings {
+    enabled         = true
+    time_in_minutes = "60"
+    webhook_url     = "https://sample-webhook-url.example.com"
   }
 }
