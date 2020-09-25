@@ -48,4 +48,4 @@ $outputInfo = (get-azContext).Name
 Write-Host -Message " $outputInfo " -NoNewLine
 Write-Host "SUCCESS!" -ForegroundColor 'Green'
 
- 
+set-azContext -subscriptionName $subscriptionName
