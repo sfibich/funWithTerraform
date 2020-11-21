@@ -18,30 +18,50 @@ echo "complete: update & upgrade" >> /tmp/cloud-init.log
 # Make it a workstation    #
 ############################
 echo "installing Desktop and serveres for remote access" >> /tmp/cloud-init.log
-#sudo apt-get install ubuntu-desktop -y 
+sudo apt-get install ubuntu-desktop -y 
 #sudo apt-get install xubuntu-desktop -y
 #sudo apt-get install ubuntu-gnome-desktop -y 
 #echo "complete: ubuntu-gnome-desktop" >> /tmp/cloud-init.log
-sudo apt-get install xfce4 -y 
-echo "complete: xfce4" >> /tmp/cloud-init.log
-sudo apt-get install xfce4-goodies -y 
-echo "complete: xfce4-goodies" >> /tmp/cloud-init.log
+#sudo apt-get install xfce4 -y 
+#echo "complete: xfce4" >> /tmp/cloud-init.log
+#sudo apt-get install xfce4-goodies -y 
+#echo "complete: xfce4-goodies" >> /tmp/cloud-init.log
+
+############################
+# Install VNC              #
+############################
 sudo apt-get install tigervnc-standalone-server -y 
 echo "complete: tigervnc-standalone-server" >> /tmp/cloud-init.log
 sudo apt-get install tigervnc-common tigervnc-xorg-extension tigervnc-viewer -y 
 echo "complete: tigernvc (the rest)" >> /tmp/cloud-init.log
 
-#RDP
+############################
+# Install RDP              #
+############################
 sudo apt-get install xrdp -y >> /tmp/cloud-init.log
 echo "complete: xrdp" >> /tmp/cloud-init.log
-#SOUND
 
-#GIT PULL
+############################
+# Terraform                #
+############################
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install terraform
+
+############################
+# Visual Studio Code       #
+############################
+sudo snap install --classic code
+
+############################
+# Git Pulls                #
+############################
 echo "getting config files from git" >> /tmp/cloud-init.log
 cd /home/adminuser
 mkdir repos 
 cd repos 
 git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
+git clone https://github.com/sfibich/funWithTerraform.git >>/tmp/cloud-init.log
 ls -la >> /tmp/cloud-init.log
 echo "complete: git"
 
