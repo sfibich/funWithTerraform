@@ -1,5 +1,9 @@
 #! /bin/sh
 ############################
+# Target:Ubuntu 18.04      #
+############################
+
+############################
 # start cloud init         #
 ############################
 sudo touch /tmp/cloud-init.log
@@ -20,8 +24,9 @@ echo "complete: update & upgrade" >> /tmp/cloud-init.log
 echo "installing Desktop and serveres for remote access" >> /tmp/cloud-init.log
 sudo apt-get install ubuntu-desktop -y 
 #sudo apt-get install xubuntu-desktop -y
-#sudo apt-get install ubuntu-gnome-desktop -y 
-#echo "complete: ubuntu-gnome-desktop" >> /tmp/cloud-init.log
+#sudo apt-get install ubuntu-gnome-desktop -y
+sudo apt install gnome-shell-extensions  -y
+echo "complete: ubuntu-gnome-desktop" >> /tmp/cloud-init.log
 #sudo apt-get install xfce4 -y 
 #echo "complete: xfce4" >> /tmp/cloud-init.log
 #sudo apt-get install xfce4-goodies -y 
@@ -39,6 +44,8 @@ echo "complete: tigernvc (the rest)" >> /tmp/cloud-init.log
 # Install RDP              #
 ############################
 sudo apt-get install xrdp -y >> /tmp/cloud-init.log
+sudo systemctl enable xrdp
+sudo systemctl status xrdp >> /tmp/cloud-init.log
 echo "complete: xrdp" >> /tmp/cloud-init.log
 
 ############################
@@ -54,38 +61,6 @@ sudo apt-get update && sudo apt-get install terraform
 sudo snap install --classic code
 
 ############################
-# Git Pulls                #
-############################
-echo "getting config files from git" >> /tmp/cloud-init.log
-cd /home/adminuser
-mkdir repos 
-cd repos 
-git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
-git clone https://github.com/sfibich/funWithTerraform.git >>/tmp/cloud-init.log
-ls -la >> /tmp/cloud-init.log
-echo "complete: git"
-
-#VNCPASSWORD
-echo "installing: setting vncpassword" >> /tmp/cloud-init.log
-sudo chmod +x repos/configs/vncpassword.sh
-./configs/vncpassword.sh >> /tmp/cloud-init.log
-
-echo "complete:vncpasswd" >> /tmp/cloud-init.log
-#VNC Serivce
-vncserver >> /tmp/cloud-init.log
-vncserver -kill :1 >> /tmp/cloud-init.log
-#mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
-cp repos/configs/xstartup .vnc/xstartup
-sudo chmod +x .vnc/xstartup
-echo "complete: vnc as a service" >> /tmp/cloud-init.log
-
-#.vmrc FILE
-#.tmux.conf FILE
-#tmux-work.sh FILE
-cd /home/adminuser/installs
-echo "complete: workstation" >> /tmp/cloud-init.log
-
-############################
 # java                     #
 ############################
 sudo apt-get install default-jdk -y 
@@ -93,14 +68,15 @@ sudo snap install --classic eclipse
 echo "complete: java" >> /tmp/cloud-init.log
 
 ############################
-# .Net Core                #
+# .Net 5.0                 #
 ############################
+wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update -y
 sudo apt-get install -y apt-transport-https 
-sudo apt-get install -y dotnet-sdk-3.1 
-sudo apt-get install -y aspnetcore-runtime-3.1 
-echo "complete: .net core" >> /tmp/cloud-init.log
-sudo snap install --classic code 
-echo "complete: Visual Studio Code" >> /tmp/cloud-init.log
+sudo apt-get update -y
+sudo apt-get install -y dotnet-sdk-5.0
+echo "complete: .net 5.0" >> /tmp/cloud-init.log
 
 ############################
 # Install Powershell       #
@@ -108,7 +84,7 @@ echo "complete: Visual Studio Code" >> /tmp/cloud-init.log
 echo "Download the Microsoft repository GPG keys" >> /tmp/cloud-init.log
 wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb 
 echo "Register the Microsoft repository GPG keys" >> /tmp/cloud-init.log
-sudo dpkg -i packages-microsoft-prod.deb >> /tmp/cloud-init.log
+sudo dpkg -i packages-microsoft-prod.deb 
 echo "Update the list of products" >> /tmp/cloud-init.log
 sudo apt-get update -y 
 echo "Enable the universe repositories" >> /tmp/cloud-init.log
@@ -116,8 +92,6 @@ sudo add-apt-repository universe
 echo "Install PowerShell" >> /tmp/cloud-init.log
 sudo apt-get install -y powershell 
 echo "complete: powershell" >> /tmp/cloud-init.log
-
-
 
 ############################
 # Install AZ Cli           #
@@ -136,6 +110,58 @@ echo "Update repository information and install the azure-cli package" >> /tmp/c
 sudo apt-get update -y 
 sudo apt-get install azure-cli -y 
 echo "complete:az cli" >> /tmp/cloud-init.log
+
+############################
+# Work in Progress below   #
+############################
+
+
+############################
+# Sound                    #
+############################
+sudo apt install xrdp-pulseaudio-installer
+sudo xrdp-build-pulse-modules #fails
+cd /tmp
+sudo apt source pulseaudio
+cd /tmp/pulseaudio-11.1
+sudo ./configure
+cd /usr/src/xrdp-pulseaudio-installer
+sudo make PULSE_DIR="/tmp/pulseaudio-11.1"
+sudo install -t "/var/lib/xrdp-pulseaudio-installer" -D -m 644 *.so
+echo "complete: sound" >> /tmp/cloud-init.log
+
+
+############################
+# Git Pulls                #
+############################
+#echo "getting config files from git" >> /tmp/cloud-init.log
+#cd /home/adminuser
+#mkdir repos 
+#cd repos 
+#git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
+#git clone https://github.com/sfibich/funWithTerraform.git >>/tmp/cloud-init.log
+#ls -la >> /tmp/cloud-init.log
+#echo "complete: git"
+
+#VNCPASSWORD
+#echo "installing: setting vncpassword" >> /tmp/cloud-init.log
+#sudo chmod +x repos/configs/vncpassword.sh
+#./configs/vncpassword.sh >> /tmp/cloud-init.log
+
+#echo "complete:vncpasswd" >> /tmp/cloud-init.log
+#VNC Serivce
+#vncserver >> /tmp/cloud-init.log
+#vncserver -kill :1 >> /tmp/cloud-init.log
+#mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
+#cp repos/configs/xstartup .vnc/xstartup
+#sudo chmod +x .vnc/xstartup
+#echo "complete: vnc as a service" >> /tmp/cloud-init.log
+
+#.vmrc FILE
+#.tmux.conf FILE
+#tmux-work.sh FILE
+#cd /home/adminuser/installs
+#echo "complete: workstation" >> /tmp/cloud-init.log
 
 ############################
 # finish cloud init        #
