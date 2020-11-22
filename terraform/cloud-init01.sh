@@ -94,6 +94,11 @@ sudo apt-get install -y powershell
 echo "complete: powershell" >> /tmp/cloud-init.log
 
 ############################
+# PowerShell AZ            #
+############################
+pwsh -command "Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force"
+
+############################
 # Install AZ Cli           #
 ############################
 sudo apt-get update -y  
@@ -134,14 +139,14 @@ echo "complete: sound" >> /tmp/cloud-init.log
 ############################
 # Git Pulls                #
 ############################
-#echo "getting config files from git" >> /tmp/cloud-init.log
-#cd /home/adminuser
-#mkdir repos 
-#cd repos 
-#git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
-#git clone https://github.com/sfibich/funWithTerraform.git >>/tmp/cloud-init.log
-#ls -la >> /tmp/cloud-init.log
-#echo "complete: git"
+echo "getting config files from git" >> /tmp/cloud-init.log
+cd ~/
+mkdir repos 
+cd repos 
+git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
+git clone https://github.com/sfibich/funWithTerraform.git >>/tmp/cloud-init.log
+ls -la >> /tmp/cloud-init.log
+echo "complete: git"
 
 #VNCPASSWORD
 #echo "installing: setting vncpassword" >> /tmp/cloud-init.log
