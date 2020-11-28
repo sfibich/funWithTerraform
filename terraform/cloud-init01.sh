@@ -22,23 +22,22 @@ echo "complete: update & upgrade" >> /tmp/cloud-init.log
 # Make it a workstation    #
 ############################
 echo "installing Desktop and serveres for remote access" >> /tmp/cloud-init.log
-sudo apt-get install ubuntu-desktop -y 
+#sudo apt-get install ubuntu-desktop -y 
 #sudo apt-get install xubuntu-desktop -y
 #sudo apt-get install ubuntu-gnome-desktop -y
 sudo apt install gnome-shell-extensions  -y
 echo "complete: ubuntu-gnome-desktop" >> /tmp/cloud-init.log
 #sudo apt-get install xfce4 -y 
-#echo "complete: xfce4" >> /tmp/cloud-init.log
-#sudo apt-get install xfce4-goodies -y 
-#echo "complete: xfce4-goodies" >> /tmp/cloud-init.log
+sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils -y
+echo "complete: xfce4" >> /tmp/cloud-init.log
 
 ############################
 # Install VNC              #
 ############################
-sudo apt-get install tigervnc-standalone-server -y 
-echo "complete: tigervnc-standalone-server" >> /tmp/cloud-init.log
-sudo apt-get install tigervnc-common tigervnc-xorg-extension tigervnc-viewer -y 
-echo "complete: tigernvc (the rest)" >> /tmp/cloud-init.log
+#sudo apt-get install tigervnc-standalone-server -y 
+#echo "complete: tigervnc-standalone-server" >> /tmp/cloud-init.log
+#sudo apt-get install tigervnc-common tigervnc-xorg-extension tigervnc-viewer -y 
+#echo "complete: tigernvc (the rest)" >> /tmp/cloud-init.log
 
 ############################
 # Install RDP              #
