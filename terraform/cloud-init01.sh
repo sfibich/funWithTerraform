@@ -25,10 +25,11 @@ echo "installing Desktop and serveres for remote access" >> /tmp/cloud-init.log
 #sudo apt-get install ubuntu-desktop -y 
 #sudo apt-get install xubuntu-desktop -y
 #sudo apt-get install ubuntu-gnome-desktop -y
-sudo apt install gnome-shell-extensions  -y
-echo "complete: ubuntu-gnome-desktop" >> /tmp/cloud-init.log
+#sudo apt install gnome-shell-extensions  -y
+#echo "complete: ubuntu-gnome-desktop" >> /tmp/cloud-init.log
 #sudo apt-get install xfce4 -y 
 sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils -y
+sudo apt install firefox -y
 echo "complete: xfce4" >> /tmp/cloud-init.log
 
 ############################
