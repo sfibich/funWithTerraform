@@ -127,6 +127,7 @@ echo "complete:az cli" >> /tmp/cloud-init.log
 sudo apt install xrdp-pulseaudio-installer
 sudo xrdp-build-pulse-modules #fails
 cd /tmp
+# Need to inline source /etc/apt/source.list file....
 sudo apt source pulseaudio
 cd /tmp/pulseaudio-11.1
 sudo ./configure
