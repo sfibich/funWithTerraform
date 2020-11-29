@@ -2,7 +2,7 @@
 ############################
 # Target:Ubuntu 18.04      #
 ############################
-
+sudo timedatectl set-timezone America/New_York
 ############################
 # start cloud init         #
 ############################
