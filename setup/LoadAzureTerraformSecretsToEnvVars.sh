@@ -25,7 +25,7 @@
 #	 - You are inside a bash session																						#
 #    - You are already logged into Azure before running this script (eg. az account login)									#
 #																															#
-#    Author:  SFibich																									#	
+#    Author:  SFibich																										#	
 #    GitHub:  https://github.com/sfibich																					#
 #																															#
 #    This script was modeled after Adam Rush's script LoadAzureTerraformSecretsToEnvVars.ps1 https://github.com/adamrushuk.	#
