@@ -1,23 +1,14 @@
-#! /bin/sh
-############################
-# Target:Ubuntu 18.04      #
-############################
+#!/bin/bash
+#############################
+# Target: Debian 10         #
+#############################
 sudo apt-get update -y 
 sudo apt-get upgrade -y 
 
-############################
-# PowerShell               #
-############################
-wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb 
-sudo dpkg -i packages-microsoft-prod.deb 
-sudo apt-get update -y 
-sudo add-apt-repository universe 
-sudo apt-get install -y powershell 
-
-############################
-# PowerShell AZ            #
-############################
-pwsh -command "Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force"
+#############
+# az client #
+#############
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 ############################
 # Terraform                #
