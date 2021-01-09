@@ -1,9 +1,6 @@
 #!/bin/bash
 
 #############################################################################################################################
-#SYNOPSIS																													#
-#  	Loads Azure Key Vault secrets into Terraform environment variables for the current bash session.						#
-#																															#
 #DESCRIPTION																												#
 #	Loads Azure Key Vault secrets into Terraform environment variables for the current bash session.						#
 #																															#
@@ -16,41 +13,39 @@
 #        - ARM_CLIENT_SECRET																								#
 #        - ARM_TENANT_ID																									#
 #        - ARM_ACCESS_KEY																									#
+#																															#
 #EXAMPLE																													#
 #    source ./LoadAzureTerraformSecretsToEnvVars.sh																			#
 #                                                                             												#	
 #    Loads Azure Key Vault secrets into Terraform environment variables for the current bash session						#
+#																															#
 #NOTES																														#
 #    Assumptions:																											#
 #    - Az Cli install																										#
 #	 - You are inside a bash session																						#
 #    - You are already logged into Azure before running this script (eg. az account login)									#
 #																															#
+#    Author:  SFibich																									#	
+#    GitHub:  https://github.com/sfibich																					#
+#																															#
 #    This script was modeled after Adam Rush's script LoadAzureTerraformSecretsToEnvVars.ps1 https://github.com/adamrushuk.	#
 #																															#
 #############################################################################################################################
 
-KEY_VAULT_NAME=terraform-kv
+KEY_VAULT_NAME_PATTERN=terraform-kv
+KEY_VAULT_NAME=TBD
 ARM_SUBSCRIPTION_ID=TBD
 ARM_CLIENT_ID=TBD
 ARM_CLIENT_SECRET=TBD
 ARM_TENANT_ID=TBD
 ARM_ACCESS_KEY=TBD
 
-echo "ARM_SUBSCRIPTION_ID:	$ARM_SUBSCRIPTION_ID"
-echo "ARM_CLIENT_ID:		$ARM_CLIENT_ID"
-echo "ARM_CLIENT_SECRET:	$ARM_CLIENT_SECRET"
-echo "ARM_TENANT_ID:		$ARM_TENANT_ID"
-echo "ARM_ACCESS_KEY:		$ARM_ACCESS_KEY"
-
-
-
 #Check Azure login
 echo "Checking for an active Azure login..."
 
 ARM_SUBSCRIPTION_ID=$(az account list --query [?isDefault].id --output tsv)
 
-if [ -z "$ARM_SUBSCRIPTION_I" ]
+if [ -z "$ARM_SUBSCRIPTION_ID" ]
 	then 
 		printf '%s\n' "ERROR! Not logged in to Azure. Run az account login" >&2
 		exit 1
@@ -58,19 +53,25 @@ if [ -z "$ARM_SUBSCRIPTION_I" ]
 		echo "SUCCESS!"
 fi
 
-#region Identify Azure Key Vault
-#$loadMessage = "loading Terraform environment variables just for this PowerShell session"
-#Write-Host "`nSTARTED: $loadMessage" -ForegroundColor 'Green'
+#Get Azure Key Vault
 
-# Get Azure objects before Key Vault lookup
-#Write-HostPadded -Message "Searching for Terraform KeyVault..." -NoNewline
+echo "Searching for Terraform KeyVault..."
+KEY_VAULT_NAME=$(az keyvault list --query "[?contains(name,'terraform-kv')].name" --output tsv)
+
+if [ -z "$KEY_VAULT_NAME" ]
+	then
+		printf '%s\n' "ERROR! No Azure Key Vault with name pattern like $KEY_VAULT_NAME_PATTERN" >&2
+		exit 1
+	else
+		echo "SUCCESS!"
+fi
+
 #$tfKeyVault = Get-AzKeyVault | Where-Object VaultName -match $keyVaultSearchString
 #if (-not $tfKeyVault) {
 #    Write-Host "ERROR!" -ForegroundColor 'Red'
 #    throw "Could not find Azure Key Vault with name including search string: [$keyVaultSearchString]"
 #}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion Identify Azure Key Vault
+echo "SUCCESS!"
 
 
 #region Get Azure KeyVault Secrets
@@ -128,8 +129,6 @@ fi
 #
 #Write-Host "`nFINISHED: $loadMessage" -ForegroundColor 'Green'
 ##endregion Load Terraform environment variables
-
-
 
 echo "ARM_SUBSCRIPTION_ID:	$ARM_SUBSCRIPTION_ID"
 echo "ARM_CLIENT_ID:		$ARM_CLIENT_ID"
