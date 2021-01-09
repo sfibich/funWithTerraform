@@ -33,19 +33,15 @@
 #############################################################################################################################
 
 KEY_VAULT_NAME_PATTERN=terraform-kv
-KEY_VAULT_NAME=TBD
-ARM_SUBSCRIPTION_ID=TBD
-ARM_CLIENT_ID=TBD
-ARM_CLIENT_SECRET=TBD
-ARM_TENANT_ID=TBD
-ARM_ACCESS_KEY=TBD
 
-#Check Azure login
+#####################
+#Check Azure login	#
+#####################
 echo "Checking for an active Azure login..."
 
-ARM_SUBSCRIPTION_ID=$(az account list --query [?isDefault].id --output tsv)
+CURRENT_SUBSCRIPTION_ID=$(az account list --query [?isDefault].id --output tsv)
 
-if [ -z "$ARM_SUBSCRIPTION_ID" ]
+if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 	then 
 		printf '%s\n' "ERROR! Not logged in to Azure. Run az account login" >&2
 		exit 1
@@ -53,8 +49,9 @@ if [ -z "$ARM_SUBSCRIPTION_ID" ]
 		echo "SUCCESS!"
 fi
 
-#Get Azure Key Vault
-
+#####################
+#Get Azure Key Vault#
+#####################
 echo "Searching for Terraform KeyVault..."
 KEY_VAULT_NAME=$(az keyvault list --query "[?contains(name,'terraform-kv')].name" --output tsv)
 
@@ -66,73 +63,59 @@ if [ -z "$KEY_VAULT_NAME" ]
 		echo "SUCCESS!"
 fi
 
-#$tfKeyVault = Get-AzKeyVault | Where-Object VaultName -match $keyVaultSearchString
-#if (-not $tfKeyVault) {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw "Could not find Azure Key Vault with name including search string: [$keyVaultSearchString]"
-#}
-echo "SUCCESS!"
+#############################
+#Get Azure KeyVault Secrets	#
+#############################
+echo "Loading ARM_SUBSCRIPTION_ID..."
+ARM_SUBSCRIPTION_ID=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-SUBSCRIPTION-ID --query "value" --output tsv)
+if [ -z "$ARM_SUBSCRIPTION_ID" ]
+	then 
+		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-SUBSCRIPITON-ID" >&2
+	else
+		echo "SUCCESS!"
+fi
 
+echo "Loading ARM_CLIENT_ID..."
+ARM_CLIENT_ID=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-CLIENT-ID --query "value" --output tsv)
+if [ -z "$ARM_CLIENT_ID" ]
+	then 
+		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-CLIENT-ID" >&2
+	else
+		echo "SUCCESS!"
+fi
 
-#region Get Azure KeyVault Secrets
-#Write-HostPadded -Message "Retrieving Terraform secrets from Azure Key Vault..." -NoNewline
-#$secretNames = @(
-#    'ARM_SUBSCRIPTION_ID'
-#    'ARM_CLIENT_ID'
-#    'ARM_CLIENT_SECRET'
-#    'ARM_TENANT_ID'
-#    'ARM_ACCESS_KEY'
-#)
-#$terraformEnvVars = @{}
+echo "Loading ARM_CLIENT_SECERT"
+ARM_CLIENT_SECRET=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-CLIENT-SECRET --query "value" --output tsv)
+if [ -z "$ARM_CLIENT_SECRET" ]
+	then 
+		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-CLIENT-SECRET" >&2
+	else
+		echo "SUCCESS!"
+fi
 
-# Compile Get Azure KeyVault Secrets
-#foreach ($secretName in $secretNames) {
-#    try {
-#        # Retrieve secret
-#        $azKeyVaultSecretParams = @{
-#            Name        = $secretName -replace '_', '-'
-#            VaultName   = $tfKeyVault.VaultName
-#            ErrorAction = 'Stop'
-#        }
-#        $tfSecret = Get-AzKeyVaultSecret @azKeyVaultSecretParams
-#
-#        # Add secret to hashtable
-#        $terraformEnvVars.$secretName = $tfSecret.SecretValueText
-#    } catch {
-#        Write-Error -Message "ERROR: $taskMessage." -ErrorAction 'Continue'
-#        throw $_
-#    }
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-##endregion Get Azure KeyVault Secrets
+echo "Loading ARM_TENANT_ID..."
+ARM_TENANT_ID=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-TENANT-ID --query "value" --output tsv)
+if [ -z "$ARM_TENANT_IDZ" ]
+	then 
+		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-TENANT-ID" >&2
+	else
+		echo "SUCCESS!"
+fi
 
-
-#region Load Terraform environment variables
-#$sessionMessage = "Setting session environment variables for Azure / Terraform"
-#Write-Host "`nSTARTED: $sessionMessage" -ForegroundColor 'Green'
-#foreach ($terraformEnvVar in $terraformEnvVars.GetEnumerator()) {
-#    Write-HostPadded -Message "Setting [$($terraformEnvVar.Key)]..." -NoNewline
-#    try {
-#        $setItemParams = @{
-#            Path        = "env:$($terraformEnvVar.Key)"
-#            Value       = $terraformEnvVar.Value
-#            ErrorAction = 'Stop'
-#        }
-#        Set-Item @setItemParams
-#    } catch {
-#        Write-Host "ERROR!" -ForegroundColor 'Red'
-#        throw $_
-#    }
-#    Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#}
-#Write-Host "FINISHED: $sessionMessage" -ForegroundColor 'Green'
-#
-#Write-Host "`nFINISHED: $loadMessage" -ForegroundColor 'Green'
-##endregion Load Terraform environment variables
+echo "Loading ARM_ACCESS_KEY..."
+ARM_ACCESS_KEY=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-ACCESS-KEY --query "value" --output tsv)
+if [ -z "$ARM_ACCESS_KEY" ]
+	then 
+		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-ACCESS_KEY" >&2
+	else
+		echo "SUCCESS!"
+fi
 
 echo "ARM_SUBSCRIPTION_ID:	$ARM_SUBSCRIPTION_ID"
 echo "ARM_CLIENT_ID:		$ARM_CLIENT_ID"
-echo "ARM_CLIENT_SECRET:	$ARM_CLIENT_SECRET"
+echo "ARM_CLIENT_SECRET:	HIDDEN!"
 echo "ARM_TENANT_ID:		$ARM_TENANT_ID"
 echo "ARM_ACCESS_KEY:		$ARM_ACCESS_KEY"
+
+echo "FINISHED!"
 
