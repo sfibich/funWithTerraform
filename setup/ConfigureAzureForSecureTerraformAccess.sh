@@ -42,11 +42,14 @@ LOCATION='eastus2'
 STORAGE_ACCOUNT_SKU='Standard_LRS'
 CONTAINER_NAME='terraform-state'
 
-# Prepend random prefix with A character, as some resources cannot start with a number
-#    $randomPrefix = ("a" + -join ((48..57) + (97..122) | Get-Random -Count 8 | ForEach-Object { [char]$_ })),
-VAULT_NAME="$randomPrefix-terraform-kv",
-STORAGE_ACCOUNT_NAME="$($randomPrefix)terraform"
-echo $STORAGE_ACCOUNT_NAME
+#####################################################################################
+# Prepend Linux epoch + 4-digit random number with the letter A: Assssssssss9999	#
+# This logic will break on Nov. 20th 2286 at 5:46:39pm								#
+#####################################################################################
+RANDOM_NUMBER=$(($RANDOM % 10000))
+RANDOM_PREFIX=A$(date +%s$RANDOM_NUMBER)
+VAULT_NAME="$RANDOM_PREFIX-terraform-kv"
+STORAGE_ACCOUNT_NAME=$RANDOM_PREFIX"terraform"
 
 #####################
 #Check Azure login	#
