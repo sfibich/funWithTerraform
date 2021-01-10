@@ -1,5 +1,5 @@
 # funWithTerraform
-Scripts I've put together to help me learn terraform as well as other Azure technologies.  The setup scripts are geared to work for a Linux platform.
+Scripts put together to help learn terraform as well as Azure.  The setup scripts are geared to work for a Linux platform.
 
 ## Befor running Terraform load environment variables
 1. Log into Azure using az account login 
