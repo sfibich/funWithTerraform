@@ -36,19 +36,19 @@
 # Modified to use current login user name as the name for Azure 
 # this means the AD Account must have the same user name
 #adminUserDisplayName = [Environment]::UserName,
-SERVICE_PRINCIPLE_NAME='terraform'
+SERVICE_PRINCIPLE_NAME='terraform2'
 RESOURCE_GROUP_NAME='terraform-mgmt-rg'
 LOCATION='eastus2'
 STORAGE_ACCOUNT_SKU='Standard_LRS'
 CONTAINER_NAME='terraform-state'
 
-#####################################################################################
-# Prepend Linux epoch + 4-digit random number with the letter A: Assssssssss9999	#
-# This logic will break on Nov. 20th 2286 at 5:46:39pm								#
-#####################################################################################
+#################################################################################
+# Prepend Linux epoch + 4-digit random number with the letter : Assssssssss9999	#
+#################################################################################
+LETTERS=({a..z})
 RANDOM_NUMBER=$(($RANDOM % 10000))
-RANDOM_PREFIX=A$(date +%s$RANDOM_NUMBER)
-VAULT_NAME="$RANDOM_PREFIX-terraform-kv"
+RANDOM_PREFIX=${LETTERS[RANDOM % 26]}$(date +%s | rev | cut -c1-10)$RANDOM_NUMBER
+KEY_VAULT_NAME="$RANDOM_PREFIX-terraform-kv"
 STORAGE_ACCOUNT_NAME=$RANDOM_PREFIX"terraform"
 
 #####################
@@ -67,8 +67,8 @@ if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 fi
 
 
-#region Service Principle
-#Write-HostPadded -Message "Checking for an active Service Principle: [$servicePrincipleName]..." -NoNewline
+#Service Principle
+echo "Checking for an active Service Principle: $SERVICE_PRINCIPLE_NAME..." 
 
 # Get current context
 #$terraformSP = Get-AzADServicePrincipal -DisplayName $servicePrincipleName
@@ -92,63 +92,13 @@ fi
 #}
 #endregion Service Principle
 
+#New Resource Group
+echo "Creating Terraform Management Resource Group: $RESOURCE_GROUP_NAME"
+az group create --name $RESOURCE_GROUP_NAME --location $LOCATION --output none
 
-#region Get Subscription
-#$taskMessage = "Finding Subscription and Tenant details"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#	#Modified to get current contexts subscription incase of multiple subscriptions.
-#    $subscription = Get-AzSubscription -SubscriptionId (get-azContext).Subscription.Id  -ErrorAction 'Stop'
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion Get Subscription
-#
-#
-#region New Resource Group
-#$taskMessage = "Creating Terraform Management Resource Group: [$resourceGroupName]"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#    $azResourceGroupParams = @{
-#        Name        = $resourceGroupName
-#        Location    = $location
-#        Tag         = @{ keep = "true" }
-#        Force       = $true
-#        ErrorAction = 'Stop'
-#        Verbose     = $VerbosePreference
-#    }
-#    New-AzResourceGroup @azResourceGroupParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion New Resource Group
-
-
-#region New Storage Account
-#$taskMessage = "Creating Terraform backend Storage Account: [$storageAccountName]"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#    $azStorageAccountParams = @{
-#        ResourceGroupName = $resourceGroupName
-#        Location          = $location
-#        Name              = $storageAccountName
-#        SkuName           = $storageAccountSku
-#        Kind              = 'StorageV2'
-#        ErrorAction       = 'Stop'
-#        Verbose           = $VerbosePreference
-#    }
-#    New-AzStorageAccount @azStorageAccountParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion New Storage Account
-
+#New Storage Account
+echo "Creating Terraform backend Storage Account: $STORAGE_ACCOUNT_NAME"
+az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --sku $STORAGE_ACCOUNT_SKU --output none
 
 #region Select Storage Container
 #$taskMessage = "Selecting Default Storage Account"
@@ -292,3 +242,14 @@ fi
 #}
 #Write-Host "SUCCESS!" -ForegroundColor 'Green'
 #endregion Create KeyVault Secrets
+
+
+
+# ending output
+echo "Terraform resources provisioned:"
+echo "SERVICE_PRINCIPLE_NAME:$SERVICE_PRINCIPLE_NAME"
+echo "RESOURCE_GROUP_NAME:$RESOURCE_GROUP_NAME"
+echo "LOCATION:$LOCATION"
+echo "CONTAINER_NAME:$CONTAINER_NAME"
+echo "STORAGE_ACCOUNT_NAME:$STORAGE_ACCOUNT_NAME"
+echo "KEY_VAULT_NAME:$KEY_VAULT_NAME"
