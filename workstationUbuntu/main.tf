@@ -4,7 +4,7 @@ terraform {
     resource_group_name  = "terraform-mgmt-rg"
     storage_account_name = "a4xhqldweterraform"
     container_name       = "terraform-state"
-    key                  = "terraform.tfstate.sfibich.simpleTest"
+    key                  = "terraform.tfstate.workstationUbuntu"
   }
   required_providers {
     azurerm = {
