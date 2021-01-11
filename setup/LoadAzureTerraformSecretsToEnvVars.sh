@@ -34,6 +34,7 @@
 
 KEY_VAULT_NAME_PATTERN=terraform-kv
 TERRAFORM_RESOURCE_GROUP=terraform-mgmt-rg
+
 #####################
 #Check Azure login	#
 #####################
