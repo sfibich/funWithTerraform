@@ -70,8 +70,9 @@ if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 		echo "SUCCESS!"
 fi
 
-
-#Service Principle
+#####################
+#Service Principle	#
+#####################
 echo "Checking for an active Service Principle: $SERVICE_PRINCIPLE_NAME..." 
 
 APP_ID=$(az ad app list --query "[?displayName=='$SERVICE_PRINCIPLE_NAME']".appId --output tsv)
@@ -87,7 +88,18 @@ if [ -z "$APP_ID" ]
 	else
 	   	echo "Service Principle exists so renew password (as cannot retrieve current one-off password)"
 fi
-az ad app credential reset --id $APP_ID
+JSON_OUTPUT=$(az ad app credential reset --id $APP_ID)
+#echo $JSON_OUTPUT
+SEARCH_STRING='\"password\": \"'
+FIRST_CUT=${JSON_OUTPUT#*$SEARCH_STRING}; 
+#echo $FIRST_CUT
+SEARCH_STRING_2='"'
+SECOND_CUT=${FIRST_CUT#*$SEARCH_STRING_2}; 
+#echo $SECOND_CUT
+LENGTH=$(( ${#FIRST_CUT} - ${#SECOND_CUT} - ${#SEARCH_STRING_2} )); 
+#echo $LENGTH
+PASSWORD=$(echo $FIRST_CUT | cut -c1-$LENGTH)
+#echo $PASSWORD
 
 #New Resource Group
 echo "Creating Terraform Management Resource Group: $RESOURCE_GROUP_NAME"
@@ -106,9 +118,10 @@ az storage container create --name $STORAGE_CONTAINER_NAME --account-name $STORA
 echo "Creating Terraform KeyVault: $KEY_VAULT_NAME"
 az keyvault create --location $LOCATION --name $KEY_VAULT_NAME --resource-group $RESOURCE_GROUP_NAME --output none
 
-#region Set KeyVault Access Policy
-#$taskMessage = "Setting KeyVault Access Policy for Admin User: [$adminUserDisplayName]"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
+#############################	
+#Set KeyVault Access Policy	#
+#############################
+echo "Setting KeyVault Access Policy for Service Principle: $SERVICE_PRINCIPLE_NAME"
 #$adminADUser = Get-AzADUser -DisplayName $adminUserDisplayName
 #try {
 #    $azKeyVaultAccessPolicyParams = @{
@@ -122,25 +135,20 @@ az keyvault create --location $LOCATION --name $KEY_VAULT_NAME --resource-group 
 #        Verbose                   = $VerbosePreference
 #    }
 #    Set-AzKeyVaultAccessPolicy @azKeyVaultAccessPolicyParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
 
 #Create KeyVault Secrets
 echo "Creating KeyVault Secrets for Terraform"
 az keyvault secret set --name ARM-SUBSCRIPTION-ID --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
-#az keyvault secret set --name ARM-CLIENT-ID --value $APP_ID --vault-name $KEY_VAULT_NAME --output none
-az keyvault secret set --name ARM-CLIENT-SECRET --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
+az keyvault secret set --name ARM-CLIENT-ID --value $APP_ID --vault-name $KEY_VAULT_NAME --output none
+az keyvault secret set --name ARM-CLIENT-SECRET --value $PASSWORD --vault-name $KEY_VAULT_NAME --output none
 az keyvault secret set --name ARM-TENANT-ID --value $TENANT_ID --vault-name $KEY_VAULT_NAME --output none
 #az keyvault secret set --name ARM-ACCESS-KEY --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
 
 # ending output
 echo "Terraform resources provisioned:"
-#echo "SERVICE_PRINCIPLE_NAME:$SERVICE_PRINCIPLE_NAME"
+echo "SERVICE_PRINCIPLE_NAME:$SERVICE_PRINCIPLE_NAME"
 echo "RESOURCE_GROUP_NAME:$RESOURCE_GROUP_NAME"
 echo "LOCATION:$LOCATION"
-echo "CONTAINER_NAME:$CONTAINER_NAME"
+echo "CONTAINER_NAME:$STORAGE_CONTAINER_NAME"
 echo "STORAGE_ACCOUNT_NAME:$STORAGE_ACCOUNT_NAME"
 echo "KEY_VAULT_NAME:$KEY_VAULT_NAME"
