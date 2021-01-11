@@ -35,12 +35,8 @@
 #Exit on error
 set -e
 
-# This is used to assign yourself access to KeyVault
-# Modified to use current login user name as the name for Azure 
-# this means the AD Account must have the same user name
-#adminUserDisplayName = [Environment]::UserName,
-SERVICE_PRINCIPLE_NAME='terraform2'
-RESOURCE_GROUP_NAME='terraform-mgmt-rg2'
+SERVICE_PRINCIPLE_NAME='terraform'
+RESOURCE_GROUP_NAME='terraform-mgmt-rg'
 LOCATION='eastus2'
 STORAGE_ACCOUNT_SKU='Standard_LRS'
 STORAGE_CONTAINER_NAME='terraform-state'
@@ -69,6 +65,8 @@ if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 	else
 		echo "SUCCESS!"
 fi
+
+ADMIN_USER=$(az ad signed-in-user show --query "userPrincipalName" --output tsv)
 
 #####################
 #Service Principle	#
@@ -101,50 +99,73 @@ LENGTH=$(( ${#FIRST_CUT} - ${#SECOND_CUT} - ${#SEARCH_STRING_2} ));
 PASSWORD=$(echo $FIRST_CUT | cut -c1-$LENGTH)
 #echo $PASSWORD
 
-#New Resource Group
+#####################
+#New Resource Group	#
+#####################
+
 echo "Creating Terraform Management Resource Group: $RESOURCE_GROUP_NAME"
 az group create --name $RESOURCE_GROUP_NAME --location $LOCATION --output none
 
-#New Storage Account
+#####################
+#New Storage Account#
+#####################
+
 echo "Creating Terraform backend Storage Account: $STORAGE_ACCOUNT_NAME"
 az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --sku $STORAGE_ACCOUNT_SKU --output none
 
-#New Storage Container
+#######################
+#New Storage Container#
+#######################
+
 AZURE_STORAGE_ACCOUNT=$STORAGE_ACCOUNT_NAME
 echo "Creating Terraform State Storage Container: $STORAGE_CONTAINER_NAME"
 az storage container create --name $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --output none
 
-#New KeyVault
+JSON_OUTPUT=$(az storage account keys renew --account-name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --key secondary)
+#echo $JSON_OUTPUT
+SEARCH_STRING='"keyName": "key2",'
+FIRST_CUT=${JSON_OUTPUT#*$SEARCH_STRING}
+#echo $FIRST_CUT
+#ASSUMES KEY comes before VALUE...bad assumption but works
+SEARCH_STRING_2='"value": "'
+SECOND_CUT=${FIRST_CUT#*$SEARCH_STRING_2}
+#echo $SECOND_CUT
+SEARCH_STRING_3='"'
+THIRD_CUT=${SECOND_CUT#*$SEARCH_STRING_3}
+#echo $THIRD_CUT
+LENGTH=$(( ${#SECOND_CUT} - ${#THIRD_CUT} - ${#SEARCH_STRING_3} ))
+#echo $LENGTH
+ARM_ACCESS_KEY=$(echo $SECOND_CUT | cut -c1-$LENGTH)
+#echo $PASSWORD
+
+
+#####################
+#New KeyVault		#
+#####################
 echo "Creating Terraform KeyVault: $KEY_VAULT_NAME"
 az keyvault create --location $LOCATION --name $KEY_VAULT_NAME --resource-group $RESOURCE_GROUP_NAME --output none
 
 #############################	
 #Set KeyVault Access Policy	#
 #############################
-echo "Setting KeyVault Access Policy for Service Principle: $SERVICE_PRINCIPLE_NAME"
-#$adminADUser = Get-AzADUser -DisplayName $adminUserDisplayName
-#try {
-#    $azKeyVaultAccessPolicyParams = @{
-#        VaultName                 = $vaultName
-#        ResourceGroupName         = $resourceGroupName
-#        ObjectId                  = $adminADUser.Id
-#        PermissionsToKeys         = @('Get', 'List')
-#        PermissionsToSecrets      = @('Get', 'List', 'Set')
-#        PermissionsToCertificates = @('Get', 'List')
-#        ErrorAction               = 'Stop'
-#        Verbose                   = $VerbosePreference
-#    }
-#    Set-AzKeyVaultAccessPolicy @azKeyVaultAccessPolicyParams | Out-String | Write-Verbose
+echo "Setting KeyVault Access Policy for Owner: $ADMIN_USER"
+KEY_VAULT_ID=$(az keyvault list --query "[?name=='$KEY_VAULT_NAME'].id" --output tsv)
+az role assignment create --assignee $ADMIN_USER --role Owner --scope $KEY_VAULT_ID --output none 
 
-#Create KeyVault Secrets
+
+#############################
+#Create KeyVault Secrets	#
+#############################
 echo "Creating KeyVault Secrets for Terraform"
 az keyvault secret set --name ARM-SUBSCRIPTION-ID --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
 az keyvault secret set --name ARM-CLIENT-ID --value $APP_ID --vault-name $KEY_VAULT_NAME --output none
 az keyvault secret set --name ARM-CLIENT-SECRET --value $PASSWORD --vault-name $KEY_VAULT_NAME --output none
 az keyvault secret set --name ARM-TENANT-ID --value $TENANT_ID --vault-name $KEY_VAULT_NAME --output none
-#az keyvault secret set --name ARM-ACCESS-KEY --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
+az keyvault secret set --name ARM-ACCESS-KEY --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
 
-# ending output
+#################
+# Ending Output	#
+#################
 echo "Terraform resources provisioned:"
 echo "SERVICE_PRINCIPLE_NAME:$SERVICE_PRINCIPLE_NAME"
 echo "RESOURCE_GROUP_NAME:$RESOURCE_GROUP_NAME"
