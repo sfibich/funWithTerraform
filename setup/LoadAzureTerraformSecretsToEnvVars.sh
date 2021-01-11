@@ -33,7 +33,7 @@
 #############################################################################################################################
 
 KEY_VAULT_NAME_PATTERN=terraform-kv
-
+TERRAFORM_RESOURCE_GROUP=terraform-mgmt-rg
 #####################
 #Check Azure login	#
 #####################
@@ -53,7 +53,7 @@ fi
 #Get Azure Key Vault#
 #####################
 echo "Searching for Terraform KeyVault..."
-KEY_VAULT_NAME=$(az keyvault list --query "[?contains(name,'terraform-kv')].name" --output tsv)
+KEY_VAULT_NAME=$(az keyvault list --resource-group $TERRAFORM_RESOURCE_GROUP --query "[?contains(name,'terraform-kv')].name" --output tsv)
 
 if [ -z "$KEY_VAULT_NAME" ]
 	then
@@ -67,7 +67,7 @@ fi
 #Get Azure KeyVault Secrets	#
 #############################
 echo "Loading ARM_SUBSCRIPTION_ID..."
-ARM_SUBSCRIPTION_ID=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-SUBSCRIPTION-ID --query "value" --output tsv)
+ARM_SUBSCRIPTION_ID=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name ARM-SUBSCRIPTION-ID --query "value" --output tsv)
 if [ -z "$ARM_SUBSCRIPTION_ID" ]
 	then 
 		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-SUBSCRIPITON-ID" >&2
@@ -76,7 +76,7 @@ if [ -z "$ARM_SUBSCRIPTION_ID" ]
 fi
 
 echo "Loading ARM_CLIENT_ID..."
-ARM_CLIENT_ID=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-CLIENT-ID --query "value" --output tsv)
+ARM_CLIENT_ID=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name ARM-CLIENT-ID --query "value" --output tsv)
 if [ -z "$ARM_CLIENT_ID" ]
 	then 
 		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-CLIENT-ID" >&2
@@ -85,7 +85,7 @@ if [ -z "$ARM_CLIENT_ID" ]
 fi
 
 echo "Loading ARM_CLIENT_SECERT"
-ARM_CLIENT_SECRET=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-CLIENT-SECRET --query "value" --output tsv)
+ARM_CLIENT_SECRET=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name ARM-CLIENT-SECRET --query "value" --output tsv)
 if [ -z "$ARM_CLIENT_SECRET" ]
 	then 
 		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-CLIENT-SECRET" >&2
@@ -94,8 +94,8 @@ if [ -z "$ARM_CLIENT_SECRET" ]
 fi
 
 echo "Loading ARM_TENANT_ID..."
-ARM_TENANT_ID=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-TENANT-ID --query "value" --output tsv)
-if [ -z "$ARM_TENANT_IDZ" ]
+ARM_TENANT_ID=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name ARM-TENANT-ID --query "value" --output tsv)
+if [ -z "$ARM_TENANT_ID" ]
 	then 
 		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-TENANT-ID" >&2
 	else
@@ -103,7 +103,7 @@ if [ -z "$ARM_TENANT_IDZ" ]
 fi
 
 echo "Loading ARM_ACCESS_KEY..."
-ARM_ACCESS_KEY=$(az keyvault secret show --vault-name a4xhqldwe-terraform-kv --name ARM-ACCESS-KEY --query "value" --output tsv)
+ARM_ACCESS_KEY=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name ARM-ACCESS-KEY --query "value" --output tsv)
 if [ -z "$ARM_ACCESS_KEY" ]
 	then 
 		printf '%s\n' "FAILURE! Azure Key Vault missing secret ARM-ACCESS_KEY" >&2
