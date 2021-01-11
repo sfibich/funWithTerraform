@@ -9,4 +9,4 @@ Series of Terraform scripts focusing on Azure from the Linux Bash perspective.
 
 ### Notes:
 * All terraform scripts require you to change the storage account and resource group of the state files prior to execution
-* If you need to configure your Azure Environment for Terraform please see the README.md in the setup directory
+* If this is your first time using these scripts please see the README.md in the setup directory
