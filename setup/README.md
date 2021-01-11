@@ -1,6 +1,4 @@
- These scripts are design to help with Azure setup and Terraform execution.  In general this is a very robust personal setup for development work with terraform.
- This setup with additional refinement could be used as part of an overall enterprise solution for Terraform.  (Good amount of work to get you there, could 
- be okay for a smaller organization)
+ These scripts are design to help with Azure setup and Terraform execution.  In general the scripts provide a robust personal setup for development work with terraform.  The setup with additional refinement could be used as part of an overall enterprise solution for Terraform.  
  
  ## ConfigureAzureForSecureTerraformAccess.sh
 
