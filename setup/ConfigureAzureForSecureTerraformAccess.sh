@@ -32,15 +32,18 @@
 #    This script was based on Adam Rush's script ConfigureAzureForSecureTerraformAccess.ps1 https://github.com/adamrushuk.	#
 #############################################################################################################################
 
+#Exit on error
+set -e
+
 # This is used to assign yourself access to KeyVault
 # Modified to use current login user name as the name for Azure 
 # this means the AD Account must have the same user name
 #adminUserDisplayName = [Environment]::UserName,
 SERVICE_PRINCIPLE_NAME='terraform2'
-RESOURCE_GROUP_NAME='terraform-mgmt-rg'
+RESOURCE_GROUP_NAME='terraform-mgmt-rg2'
 LOCATION='eastus2'
 STORAGE_ACCOUNT_SKU='Standard_LRS'
-CONTAINER_NAME='terraform-state'
+STORAGE_CONTAINER_NAME='terraform-state'
 
 #################################################################################
 # Prepend Linux epoch + 4-digit random number with the letter : Assssssssss9999	#
@@ -48,7 +51,7 @@ CONTAINER_NAME='terraform-state'
 LETTERS=({a..z})
 RANDOM_NUMBER=$(($RANDOM % 10000))
 RANDOM_PREFIX=${LETTERS[RANDOM % 26]}$(date +%s | rev | cut -c1-10)$RANDOM_NUMBER
-KEY_VAULT_NAME="$RANDOM_PREFIX-terraform-kv"
+KEY_VAULT_NAME=${LETTERS[RANDOM % 26]}$(date +%s | rev | cut -c1-6)$RANDOM_NUMBER"-terraform-kv"
 STORAGE_ACCOUNT_NAME=$RANDOM_PREFIX"terraform"
 
 #####################
@@ -57,6 +60,7 @@ STORAGE_ACCOUNT_NAME=$RANDOM_PREFIX"terraform"
 echo "Checking for an active Azure login..."
 
 CURRENT_SUBSCRIPTION_ID=$(az account list --query [?isDefault].id --output tsv)
+TENANT_ID=$(az account list --query [?isDefault].homeTenantId --output tsv)
 
 if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 	then 
@@ -70,27 +74,20 @@ fi
 #Service Principle
 echo "Checking for an active Service Principle: $SERVICE_PRINCIPLE_NAME..." 
 
-# Get current context
-#$terraformSP = Get-AzADServicePrincipal -DisplayName $servicePrincipleName
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
+APP_ID=$(az ad app list --query "[?displayName=='$SERVICE_PRINCIPLE_NAME']".appId --output tsv)
+echo $APP_ID
 
-#if (-not $terraformSP) {
-#    Write-HostPadded -Message "Creating a Terraform Service Principle: [$servicePrincipleName] ..." -NoNewline
-#    try {
-#        $terraformSP = New-AzADServicePrincipal -DisplayName $servicePrincipleName -Role 'Contributor' -ErrorAction 'Stop'
-#        $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $terraformSP.Secret).GetNetworkCredential().Password
-#    } catch {
-#        Write-Host "ERROR!" -ForegroundColor 'Red'
-#        throw $_
-#    }
-#    Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#
-#} else {
-#    # Service Principle exists so renew password (as cannot retrieve current one-off password)
-#    $newSpCredential = $terraformSP | New-AzADSpCredential
-#    $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $newSpCredential.Secret).GetNetworkCredential().Password
-#}
-#endregion Service Principle
+if [ -z "$APP_ID" ]
+	then 
+		echo "Creating a Terraform Service Principle: [$servicePrincipleName] ..."
+		az ad app create --display-name $SERVICE_PRINCIPLE_NAME --output none
+		APP_ID=$(az ad app list --query "[?displayName=='$SERVICE_PRINCIPLE_NAME']".appId --output tsv)
+		az ad sp create --id $APP_ID --output none
+		az role assignment create --assignee $APP_ID --role Contributor --scope /subscriptions/$CURRENT_SUBSCRIPTION_ID --output none 
+	else
+	   	echo "Service Principle exists so renew password (as cannot retrieve current one-off password)"
+fi
+az ad app credential reset --id $APP_ID
 
 #New Resource Group
 echo "Creating Terraform Management Resource Group: $RESOURCE_GROUP_NAME"
@@ -100,66 +97,14 @@ az group create --name $RESOURCE_GROUP_NAME --location $LOCATION --output none
 echo "Creating Terraform backend Storage Account: $STORAGE_ACCOUNT_NAME"
 az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --sku $STORAGE_ACCOUNT_SKU --output none
 
-#region Select Storage Container
-#$taskMessage = "Selecting Default Storage Account"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#    $azCurrentStorageAccountParams = @{
-#        ResourceGroupName = $resourceGroupName
-#        AccountName       = $storageAccountName
-#        ErrorAction       = 'Stop'
-#        Verbose           = $VerbosePreference
-#    }
-#    Set-AzCurrentStorageAccount @azCurrentStorageAccountParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion Select Storage Account
+#New Storage Container
+AZURE_STORAGE_ACCOUNT=$STORAGE_ACCOUNT_NAME
+echo "Creating Terraform State Storage Container: $STORAGE_CONTAINER_NAME"
+az storage container create --name $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --output none
 
-
-#region New Storage Container
-#$taskMessage = "Creating Terraform State Storage Container: [$storageContainerName]"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#    $azStorageContainerParams = @{
-#        Name        = $storageContainerName
-#        Permission  = 'Off'
-#        ErrorAction = 'Stop'
-#        Verbose     = $VerbosePreference
-#    }
-#    New-AzStorageContainer @azStorageContainerParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion New Storage Container
-
-
-#region New KeyVault
-#$taskMessage = "Creating Terraform KeyVault: [$vaultName]"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-
- #   Register-AzResourceProvider -ProviderNamespace "Microsoft.KeyVault"
-
-#    $azKeyVaultParams = @{
-#        VaultName         = $vaultName
-#        ResourceGroupName = $resourceGroupName
-#        Location          = $location
-#        ErrorAction       = 'Stop'
-#        Verbose           = $VerbosePreference
-#    }
-#    New-AzKeyVault @azKeyVaultParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion New KeyVault
-
+#New KeyVault
+echo "Creating Terraform KeyVault: $KEY_VAULT_NAME"
+az keyvault create --location $LOCATION --name $KEY_VAULT_NAME --resource-group $RESOURCE_GROUP_NAME --output none
 
 #region Set KeyVault Access Policy
 #$taskMessage = "Setting KeyVault Access Policy for Admin User: [$adminUserDisplayName]"
@@ -182,72 +127,18 @@ az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURC
 #    throw $_
 #}
 #Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#
-#$taskMessage = "Setting KeyVault Access Policy for Terraform SP: [$servicePrincipleName]"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#    $azKeyVaultAccessPolicyParams = @{
-#        VaultName                 = $vaultName
-#        ResourceGroupName         = $resourceGroupName
-#        ObjectId                  = $terraformSP.Id
-#        PermissionsToKeys         = @('Get', 'List')
-#        PermissionsToSecrets      = @('Get', 'List', 'Set')
-#        PermissionsToCertificates = @('Get', 'List')
-#        ErrorAction               = 'Stop'
-#        Verbose                   = $VerbosePreference
-#    }
-#    Set-AzKeyVaultAccessPolicy @azKeyVaultAccessPolicyParams | Out-String | Write-Verbose
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion Set KeyVault Access Policy
 
-
-#region Terraform login variables
-# Get Storage Access Key
-#$storageAccessKeys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAccountName
-#$storageAccessKey = $storageAccessKeys[0].Value # only need one of the keys
-
-#$terraformLoginVars = @{
-#    'ARM-SUBSCRIPTION-ID' = $subscription.Id
-#    'ARM-CLIENT-ID'       = $terraformSP.ApplicationId
-#    'ARM-CLIENT-SECRET'   = $servicePrinciplePassword
-#    'ARM-TENANT-ID'       = $subscription.TenantId
-#    'ARM-ACCESS-KEY'      = $storageAccessKey
-#}
-#Write-Host "`nTerraform login details:"
-#$terraformLoginVars | Out-String | Write-Host
-#endregion Terraform login variables
-
-
-#region Create KeyVault Secrets
-#$taskMessage = "Creating KeyVault Secrets for Terraform"
-#Write-HostPadded -Message "`n$taskMessage..." -NoNewline
-#try {
-#    foreach ($terraformLoginVar in $terraformLoginVars.GetEnumerator()) {
-#        $AzKeyVaultSecretParams = @{
-#            VaultName   = $vaultName
-#            Name        = $terraformLoginVar.Key
-#            SecretValue = (ConvertTo-SecureString -String $terraformLoginVar.Value -AsPlainText -Force)
-#            ErrorAction = 'Stop'
-#            Verbose     = $VerbosePreference
-#        }
-#        Set-AzKeyVaultSecret @AzKeyVaultSecretParams | Out-String | Write-Verbose
-#    }
-#} catch {
-#    Write-Host "ERROR!" -ForegroundColor 'Red'
-#    throw $_
-#}
-#Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion Create KeyVault Secrets
-
-
+#Create KeyVault Secrets
+echo "Creating KeyVault Secrets for Terraform"
+az keyvault secret set --name ARM-SUBSCRIPTION-ID --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
+#az keyvault secret set --name ARM-CLIENT-ID --value $APP_ID --vault-name $KEY_VAULT_NAME --output none
+az keyvault secret set --name ARM-CLIENT-SECRET --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
+az keyvault secret set --name ARM-TENANT-ID --value $TENANT_ID --vault-name $KEY_VAULT_NAME --output none
+#az keyvault secret set --name ARM-ACCESS-KEY --value $CURRENT_SUBSCRIPTION_ID --vault-name $KEY_VAULT_NAME --output none
 
 # ending output
 echo "Terraform resources provisioned:"
-echo "SERVICE_PRINCIPLE_NAME:$SERVICE_PRINCIPLE_NAME"
+#echo "SERVICE_PRINCIPLE_NAME:$SERVICE_PRINCIPLE_NAME"
 echo "RESOURCE_GROUP_NAME:$RESOURCE_GROUP_NAME"
 echo "LOCATION:$LOCATION"
 echo "CONTAINER_NAME:$CONTAINER_NAME"
