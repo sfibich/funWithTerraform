@@ -14,6 +14,10 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  features {}
+}
+
 resource "azurerm_resource_group" "main" {
   name     = "work-resources"
   location = var.location
@@ -69,7 +73,7 @@ resource "azurerm_network_security_group" "access" {
     destination_address_prefix = azurerm_network_interface.main.private_ip_address
   }
 
-	security_rule {
+  security_rule {
     access                     = "Allow"
     direction                  = "Inbound"
     name                       = "vnc"
@@ -81,7 +85,7 @@ resource "azurerm_network_security_group" "access" {
     destination_address_prefix = azurerm_network_interface.main.private_ip_address
   }
 
-	security_rule {
+  security_rule {
     access                     = "Allow"
     direction                  = "Inbound"
     name                       = "rdp"
@@ -89,7 +93,7 @@ resource "azurerm_network_security_group" "access" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     source_address_prefix      = "*"
-		destination_port_range     = "3389"
+    destination_port_range     = "3389"
     destination_address_prefix = azurerm_network_interface.main.private_ip_address
   }
 
@@ -105,14 +109,14 @@ resource "azurerm_linux_virtual_machine" "main" {
   resource_group_name             = azurerm_resource_group.main.name
   location                        = azurerm_resource_group.main.location
   size                            = "Standard_D8a_v4"
-  admin_username                  = "${var.username}"
-  admin_password                  = "${var.password}"
+  admin_username                  = var.username
+  admin_password                  = var.password
   disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.main.id
   ]
 
-	custom_data = base64encode(file("cloud-init01.sh"))
+  custom_data = base64encode(file("cloud-init01.sh"))
 
   source_image_reference {
     publisher = "Canonical"
