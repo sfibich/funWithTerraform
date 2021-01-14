@@ -18,6 +18,12 @@ provider "azurerm" {
   features {}
 }
 
+
+resource "random_pet" "server" {
+  prefix = "workstation"
+
+}
+
 resource "azurerm_resource_group" "main" {
   name     = "work-resources"
   location = var.location
@@ -42,6 +48,7 @@ resource "azurerm_public_ip" "pip" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Dynamic"
+  domain_name_label   = random_pet.server.id
 }
 
 resource "azurerm_network_interface" "main" {
