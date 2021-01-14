@@ -31,6 +31,8 @@ echo "installing Desktop and serveres for remote access" >> /tmp/cloud-init.log
 sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils -y
 sudo apt install firefox -y
 echo "complete: xfce4" >> /tmp/cloud-init.log
+sudo apt-get install -y gnome-keyring
+
 
 ############################
 # Install VNC              #
@@ -54,6 +56,13 @@ echo "complete: xrdp" >> /tmp/cloud-init.log
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 sudo apt-get update && sudo apt-get install terraform
+
+############################
+# Azure Storage Explorer   #
+############################
+sudo snap install storage-explorer
+sudo snap connect storage-explorer:password-manager-service :password-manager-service
+echo "complete: azure storage explorer" >> /tmp/cloud-init.log
 
 ############################
 # Visual Studio Code       #
@@ -144,8 +153,8 @@ echo "getting config files from git" >> /tmp/cloud-init.log
 cd ~/
 mkdir repos 
 cd repos 
-git clone https://github.com/sfibich/config.git >>/tmp/cloud-init.log
-git clone https://github.com/sfibich/funWithTerraform.git >>/tmp/cloud-init.log
+git clone https://github.com/adminuser/config.git >>/tmp/cloud-init.log
+git clone https://github.com/adminuser/funWithTerraform.git >>/tmp/cloud-init.log
 ls -la >> /tmp/cloud-init.log
 echo "complete: git"
 
