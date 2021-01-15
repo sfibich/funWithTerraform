@@ -1,6 +1,6 @@
 # Ubuntu 18.04/XFCE Workstation
 This terrform script create an Ubuntu 18.04 LTS machine with an XFCE desktop.
-### Install Software:
+### Configuration and Installed Software:
 * set time zone to America/New_York
 * apt-get update & upgrade
 * Desktop (XFCE w/goodies, x11 xserver utils and a few others)
