@@ -14,7 +14,7 @@ This terrform script create an Ubuntu 18.04 LTS machine with an XFCE desktop.
 * .Net 5.0
 * Powershell
 * PowerShell AZ Module
-* AZ Cli
+* AZ CLI
 
 ## Example 1:
 The following would prompt to approve the plan and use the default password provided in the variables file.  This is not recommended as the password is exposed in this repository.
