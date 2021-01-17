@@ -32,7 +32,7 @@ sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils -y
 sudo apt install firefox -y
 echo "complete: xfce4" >> /tmp/cloud-init.log
 sudo apt-get install -y gnome-keyring
-
+sudo apt-get install -y tree
 
 ############################
 # Install VNC              #
