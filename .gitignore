@@ -6,6 +6,9 @@
 **/.terraform/*
 **/.terraform.lock.hcl
 
+# Files that may store sensitive data
+**/backend.tfvars.secret
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
