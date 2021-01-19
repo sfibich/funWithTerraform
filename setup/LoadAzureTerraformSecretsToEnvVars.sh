@@ -31,9 +31,23 @@
 #    This script was modeled after Adam Rush's script LoadAzureTerraformSecretsToEnvVars.ps1 https://github.com/adamrushuk.	#
 #																															#
 #############################################################################################################################
+if [ -z "$1" ]
+	then
+		KEY_VAULT_NAME_PATTERN=terraform-kv
+		echo "Using Default KEY_VAULT_NAME_PATTERN:$KEY_VAULT_NAME_PATTERN"
+	else
+		KEY_VAULT_NAME_PATTERN=$1
+		echo "Using input KEY_VAULT_NAME_PATTERN:$1"
+fi
 
-KEY_VAULT_NAME_PATTERN=terraform-kv
-TERRAFORM_RESOURCE_GROUP=terraform-mgmt-rg
+if [ -z "$2" ]
+	then
+		TERRAFORM_RESOURCE_GROUP=terraform-mgmt-rg
+		echo "Using Default TERRAFORM_RESORUCE_GROUP:$TERRAFORM_RESOURCE_GROUP"
+	else
+		TERRAFORM_RESOURCE_GROUP=$2
+		echo "Using input TERRAFORM_RESOURCE_GROUP:$2"
+fi
 
 #####################
 #Check Azure login	#
@@ -45,7 +59,7 @@ CURRENT_SUBSCRIPTION_ID=$(az account list --query [?isDefault].id --output tsv)
 if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 	then 
 		printf '%s\n' "ERROR! Not logged in to Azure. Run az account login" >&2
-		exit 1
+#		exit 1
 	else
 		echo "SUCCESS!"
 fi
@@ -54,12 +68,12 @@ fi
 #Get Azure Key Vault#
 #####################
 echo "Searching for Terraform KeyVault..."
-KEY_VAULT_NAME=$(az keyvault list --resource-group $TERRAFORM_RESOURCE_GROUP --query "[?contains(name,'terraform-kv')].name" --output tsv)
+KEY_VAULT_NAME=$(az keyvault list --resource-group $TERRAFORM_RESOURCE_GROUP --query "[?contains(name,'$KEY_VAULT_NAME_PATTERN')].name" --output tsv)
 
 if [ -z "$KEY_VAULT_NAME" ]
 	then
 		printf '%s\n' "ERROR! No Azure Key Vault with name pattern like $KEY_VAULT_NAME_PATTERN" >&2
-		exit 1
+#		exit 1
 	else
 		echo "SUCCESS!"
 fi
