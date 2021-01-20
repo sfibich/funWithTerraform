@@ -132,5 +132,13 @@ echo "ARM_CLIENT_SECRET:	HIDDEN!"
 echo "ARM_TENANT_ID:		$ARM_TENANT_ID"
 echo "ARM_ACCESS_KEY:		$ARM_ACCESS_KEY"
 
+if [ -z "$3" ]
+	then
+		echo "KEY VAULT SUBSCRIPTION used for Terraform Target Subscription:$ARM_SUBSCRIPTION_ID"
+	else
+		ARM_SUBSCRIPTION_ID=$3
+		echo "USER OVERIDE SUBSCRIPITON used for Terraform Target Subscription:$ARM_SUBSCRIPTION_ID"
+fi
+
 echo "FINISHED!"
 
