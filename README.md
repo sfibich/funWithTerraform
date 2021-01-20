@@ -10,8 +10,13 @@ Series of Terraform scripts focusing on Azure from the Linux Bash perspective.
 ### Execution Notes:
 Each SubFolder (Code Library) contains an environment folder for runtime information: dev, test, prod.  
 The "backend.tfvars.secret" is included in the git ignore file, the included backend.tfvars is a sample file.
+#### Inital/Reconfiguration
 * Example 1: terraform init -reconfigure -backend-config="dev/backend.tfvars"
 * Example 2: terraform init -reconfigure -backend-config="dev/backend.tfvars.secret"
+#### Subsequent runs
+* Example 3: terraform init -backend-config="dev/backend.tfvars"
+* Example 4: terraform init -backend-config="dev/backend.tfvars.secret"
+
 
 ### Notes:
 * All terraform scripts require you to change the storage account and resource group of the state files prior to execution
