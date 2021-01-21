@@ -13,14 +13,8 @@ terraform {
 }
 
 provider "azurerm" {
-  #alias           = "test"
   subscription_id = var.target_subscription_id
   features {}
-}
-
-resource "azurerm_resource_group" "rg" {
-  name     = "simpleTest"
-  location = "eastus2"
 }
 
 

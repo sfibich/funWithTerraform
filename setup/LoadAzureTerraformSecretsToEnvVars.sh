@@ -31,22 +31,38 @@
 #    This script was modeled after Adam Rush's script LoadAzureTerraformSecretsToEnvVars.ps1 https://github.com/adamrushuk.	#
 #																															#
 #############################################################################################################################
-if [ -z "$1" ]
+SKIP=FALSE
+OPTIND=1
+while getopts :k:r:s: flag
+do
+    case "${flag}" in
+        k) USER_KEY_VAULT_PATTERN=${OPTARG};;
+        r) USER_RESOURCE_GROUP=${OPTARG};;
+        s) USER_SUBSCRIPTION=${OPTARG};;
+		?) SKIP=TRUE 
+			echo "help: switches -k USER_KEY_VAULT_PATTERN -r USER_RESOURCE_GROUP -s USER_SUBSCRIPTION" ;;
+    esac
+done
+
+if [ $SKIP == "FALSE" ]
+	then
+
+if [ -z "$USER_KEY_VAULT_PATTERN" ]
 	then
 		KEY_VAULT_NAME_PATTERN=terraform-kv
 		echo "Using Default KEY_VAULT_NAME_PATTERN:$KEY_VAULT_NAME_PATTERN"
 	else
-		KEY_VAULT_NAME_PATTERN=$1
-		echo "Using input KEY_VAULT_NAME_PATTERN:$1"
+		KEY_VAULT_NAME_PATTERN=$USER_KEY_VAULT_PATTERN
+		echo "Using input KEY_VAULT_NAME_PATTERN: $KEY_VAULT_NAME_PATTERN"
 fi
 
-if [ -z "$2" ]
+if [ -z "$USER_RESOURCE_GROUP" ]
 	then
 		TERRAFORM_RESOURCE_GROUP=terraform-mgmt-rg
 		echo "Using Default TERRAFORM_RESORUCE_GROUP:$TERRAFORM_RESOURCE_GROUP"
 	else
-		TERRAFORM_RESOURCE_GROUP=$2
-		echo "Using input TERRAFORM_RESOURCE_GROUP:$2"
+		TERRAFORM_RESOURCE_GROUP=$USER_RESOURCE_GROUP
+		echo "Using input TERRAFORM_RESOURCE_GROUP:$TERRAFORM_RESOURCE_GROUP"
 fi
 
 #####################
@@ -126,19 +142,25 @@ if [ -z "$ARM_ACCESS_KEY" ]
 		echo "SUCCESS!"
 fi
 
+echo "Loading TF_VAR_target_subscription_id.."
+if [ -z "$USER_SUBSCRIPTION" ]
+	then
+		TF_VAR_target_subscription_id=$ARM_SUBSCRIPTION_ID
+		echo "Used ARM_SUBSCRIPTION_ID from key vault...SUCCESS"
+	else
+		TF_VAR_target_subscription_id=$USER_SUBSCRIPTION
+		echo "Used value passed w/script...SUCCESS"
+fi
+
 echo "ARM_SUBSCRIPTION_ID:	$ARM_SUBSCRIPTION_ID"
 echo "ARM_CLIENT_ID:		$ARM_CLIENT_ID"
 echo "ARM_CLIENT_SECRET:	HIDDEN!"
 echo "ARM_TENANT_ID:		$ARM_TENANT_ID"
 echo "ARM_ACCESS_KEY:		$ARM_ACCESS_KEY"
-
-if [ -z "$3" ]
-	then
-		echo "KEY VAULT SUBSCRIPTION used for Terraform Target Subscription:$ARM_SUBSCRIPTION_ID"
-	else
-		ARM_SUBSCRIPTION_ID=$3
-		echo "USER OVERIDE SUBSCRIPITON used for Terraform Target Subscription:$ARM_SUBSCRIPTION_ID"
-fi
+echo "TF_VAR_target_subscription_id: $TF_VAR_target_subscription_id"
 
 echo "FINISHED!"
 
+	else
+		echo ""
+fi

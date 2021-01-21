@@ -1,8 +1,8 @@
 # Configure the Azure provider
 terraform {
   backend "azurerm" {
-    container_name       = "terraform-state"
-    key                  = "terraform.tfstate.privateLink"
+    container_name = "terraform-state"
+    key            = "terraform.tfstate.privateLink"
   }
   required_providers {
     azurerm = {
@@ -12,9 +12,12 @@ terraform {
   }
 }
 
+
+
 provider "azurerm" {
-     features {}
-   }
+  subscription_id = var.target_subscription_id
+  features {}
+}
 
 
 resource "azurerm_resource_group" "rg" {

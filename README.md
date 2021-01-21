@@ -2,9 +2,12 @@
 Series of Terraform scripts focusing on Azure from the Linux Bash perspective.
 
 ## SubFolders (Code Library):
+The each sub folder is meant to be its own terraform module not a submodule.  This means you will not find a main.tf, variables.tf, or a output.tf
+in the root of this repo.  It also explains why there is no modules folder in the root of this repo.
 * privateLink - Terraform scripts to set up Azure Private Link along with resources for demonstration purposes
 * setup - Bash scripts to set up Azure to hold state files as well as load variables to your session
 * simpleTestResourceGroup - simple script to validate terraform setup
+* template - a template project to copy to other folder when starting new terrform work.
 * workstationUbuntu - Terraform scripts to create an Ubuntu workstation suitable for development
 
 ### Execution Notes:
