@@ -1,8 +1,6 @@
 # Configure the Azure provider
 terraform {
   backend "azurerm" {
-    container_name = "terraform-state"
-    key            = "terraform.tfstate.simpleTestResourceGroup"
   }
   required_providers {
     azurerm = {

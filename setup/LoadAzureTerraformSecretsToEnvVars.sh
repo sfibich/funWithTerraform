@@ -44,8 +44,9 @@ do
     esac
 done
 
-if [ $SKIP == "FALSE" ]
-	then
+
+
+function set_core_variables() {
 
 if [ -z "$USER_KEY_VAULT_PATTERN" ]
 	then
@@ -64,6 +65,18 @@ if [ -z "$USER_RESOURCE_GROUP" ]
 		TERRAFORM_RESOURCE_GROUP=$USER_RESOURCE_GROUP
 		echo "Using input TERRAFORM_RESOURCE_GROUP:$TERRAFORM_RESOURCE_GROUP"
 fi
+
+
+}
+
+function get_backend_values() {
+
+	BACKEND_STORAGE_ACCOUNT=$(az storage account list --resource-group $TERRAFORM_RESOURCE_GROUP --query "[?contains(@.name, 'terraform')==\`true\`].name" --output tsv)
+	BACKEND_CONTAINER=terraform-state
+}
+
+
+function get_keyvault_values() {
 
 #####################
 #Check Azure login	#
@@ -151,15 +164,48 @@ if [ -z "$USER_SUBSCRIPTION" ]
 		TF_VAR_target_subscription_id=$USER_SUBSCRIPTION
 		echo "Used value passed w/script...SUCCESS"
 fi
+}
 
-echo "ARM_SUBSCRIPTION_ID:	$ARM_SUBSCRIPTION_ID"
-echo "ARM_CLIENT_ID:		$ARM_CLIENT_ID"
-echo "ARM_CLIENT_SECRET:	HIDDEN!"
-echo "ARM_TENANT_ID:		$ARM_TENANT_ID"
-echo "ARM_ACCESS_KEY:		$ARM_ACCESS_KEY"
-echo "TF_VAR_target_subscription_id: $TF_VAR_target_subscription_id"
+function output_info() {
+	echo "************************************************************************"
+	echo "                              SPN VALUES"
+	echo "************************************************************************"
+	echo "ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID"
+	echo "ARM_CLIENT_ID:       $ARM_CLIENT_ID"
+	echo "ARM_CLIENT_SECRET:   HIDDEN!"
+	echo "ARM_TENANT_ID:       $ARM_TENANT_ID"
+	echo "ARM_ACCESS_KEY:      $ARM_ACCESS_KEY"
+	echo "************************************************************************"
+	echo ""
+	echo "************************************************************************"
+	echo "                              BACKEND VALUES"
+	echo "************************************************************************"
+	echo "TF_VAR_target_subscription_id:$TF_VAR_target_subscription_id"
+	echo "TERRAFORM_RESOURCE_GROUP:     $TERRAFORM_RESOURCE_GROUP"
+	echo "BACKEND_STORAGE_ACCOUNT:      $BACKEND_STORAGE_ACCOUNT"
+	echo "BACKEND_CONTAINER:            $BACKEND_CONTAINER"
+	echo "************************************************************************"
+	echo ""
+	echo "************************************************************************"
+	echo "                              TF VALUES for EXPORT"
+	echo "************************************************************************"
+	echo "TF_VAR_target_subscription_id: $TF_VAR_target_subscription_id"
+	export TF_VAR_target_subscription_id=$TF_VAR_target_subscription_id
 
-echo "FINISHED!"
+}
+#####################
+#		MAIN		#
+#####################
+
+
+if [ $SKIP == "FALSE" ]
+	then
+		set_core_variables
+		get_backend_values
+		get_keyvault_values
+		output_info
+		
+		echo "FINISHED!"
 
 	else
 		echo ""

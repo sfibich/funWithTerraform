@@ -8,3 +8,13 @@ variable "target_subscription_id" {
   }
 }
 
+variable "state_container_name" {
+  type = string
+  default = "terraform-state"
+}
+
+variable "state_key_name" {
+  type = string
+  default = "terraform.tfstate.simpleTestResourceGroup"
+}
+ 
