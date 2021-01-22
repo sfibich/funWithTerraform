@@ -13,10 +13,10 @@ in the root of this repo.  It also explains why there is no modules folder in th
 ### First time Execution Notes
 If this is your first time running the code in the repository please see the README.md in the setup folder.  The scripts in that folder configure  your Azure environment as well as your bash environment as expected by the rest of the scripts in this repository.
 
-### Execution Notes:
-Please run "source ./LoadAzureTerraformSecretsToEnvVars.sh to initialize all the session variables.  This will allow the terraform scripts to pick up the expected variables
+### General Execution Notes:
+Please run "source ./LoadAzureTerraformSecretsToEnvVars.sh" to initialize the env variables for each new bash session.  This will allow the terraform scripts to pick up the expected variables
 
-#### Terraform Init
+### Terraform Init
 Each Sub-Folder is set up to be its own independent module.  So for each module the very first time you run it you are expected to "init" the back end. Below is an example of initializing the back end for a development environment.  Files for production and test are provided as well
 ```
 terraform init -reconfigure -backend-config="storage_account_name=$BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$BACKEND_CONTAINER" -backend-config="resource_group_name=$TERRAFORM_RESOURCE_GROUP" -backend-config="dev/backend.tfvars" 
