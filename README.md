@@ -19,7 +19,7 @@ Please run "source ./LoadAzureTerraformSecretsToEnvVars.sh" to initialize the en
 ### Terraform Init
 Each Sub-Folder is set up to be its own independent module.  So for each module the very first time you run it you are expected to "init" the back end. Below is an example of initializing the back end for a development environment.  Files for production and test are provided as well
 ```
-terraform init -reconfigure \ 
+terraform init -reconfigure \
  -backend-config="storage_account_name=$BACKEND_STORAGE_ACCOUNT" \
  -backend-config="container_name=$BACKEND_CONTAINER" \
  -backend-config="resource_group_name=$TERRAFORM_RESOURCE_GROUP" \
