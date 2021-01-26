@@ -127,12 +127,21 @@ echo "complete:az cli" >> /tmp/cloud-init.log
 
 
 ############################
-# Install  AZ Func         #
+# Install AZ Func         #
 ############################
 wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get update
-sudo apt-get install azure-functions-core-tools-3
+sudo apt-get install azure-functions-core-tools-3 -y
+
+
+############################
+# Install core dev utils   #
+############################
+sudo apt-get install python3.6-dev -y
+sudo apt-get install python3.8 python3.8-dev python3.8-distutils python3.8-venv -y
+sudo apt-get install cmake
+
 
 ############################
 # Work in Progress below   #
