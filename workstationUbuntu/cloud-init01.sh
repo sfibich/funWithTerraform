@@ -144,6 +144,16 @@ sudo apt-get install cmake
 
 
 ############################
+# Install Python 3.7	   #
+############################
+
+sudo apt-get install python3.7 -y
+sudo apt-get install python3.7-venv -y
+sudo apt-get install python3.7-dev -y
+sudo apt-get install python3.7-doc -y
+
+
+############################
 # Work in Progress below   #
 ############################
 
