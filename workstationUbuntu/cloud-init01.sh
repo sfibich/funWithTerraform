@@ -65,6 +65,12 @@ sudo snap connect storage-explorer:password-manager-service :password-manager-se
 echo "complete: azure storage explorer" >> /tmp/cloud-init.log
 
 ############################
+# Azure Batch Explorer     #
+############################
+wget https://batchexplorer.azureedge.net/stable/2.8.0-stable.484/batch-explorer_2.8.0-stable.484_amd64.deb
+sudo apt-get install ./batch-explorer_2.8.0-stable.484_amd64.deb
+
+############################
 # Visual Studio Code       #
 ############################
 sudo snap install --classic code
