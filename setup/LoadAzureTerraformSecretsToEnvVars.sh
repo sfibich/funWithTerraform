@@ -191,6 +191,11 @@ function output_info() {
 	echo "************************************************************************"
 	echo "TF_VAR_target_subscription_id: $TF_VAR_target_subscription_id"
 	export TF_VAR_target_subscription_id=$TF_VAR_target_subscription_id
+	export ARM_CLIENT_ID=$ARM_CLIENT_ID
+	export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
+	export ARM_TENANT_ID=$ARM_TENANT_ID
+	export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
+	export ARM_ACCESS_KEY=$ARM_ACCESS_KEY
 
 }
 #####################
