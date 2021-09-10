@@ -83,7 +83,7 @@ function get_keyvault_values() {
 #####################
 echo "Checking for an active Azure login..."
 
-CURRENT_SUBSCRIPTION_ID=$(az account list --query [?isDefault].id --output tsv)
+CURRENT_SUBSCRIPTION_ID=$(az account list --query "[?isDefault].id" --output tsv)
 
 if [ -z "$CURRENT_SUBSCRIPTION_ID" ]
 	then 
@@ -197,8 +197,7 @@ function output_info() {
 #		MAIN		#
 #####################
 
-
-if [ $SKIP == "FALSE" ]
+if [[ $SKIP == "FALSE" ]]
 	then
 		set_core_variables
 		get_backend_values
