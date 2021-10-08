@@ -2,7 +2,7 @@
 terraform {
   backend "azurerm" {
     container_name       = "terraform-state"
-    key                  = "terraform.tfstate.workstationUbuntu"
+    key                  = "terraform.tfstate.shellStationUbuntu"
   }
   required_providers {
     azurerm = {
@@ -18,7 +18,7 @@ provider "azurerm" {
 
 
 resource "random_pet" "server" {
-  prefix = "workstation"
+  prefix = "shellStation"
 
 }
 
@@ -113,7 +113,9 @@ resource "azurerm_linux_virtual_machine" "main" {
   name                            = "${var.prefix}-vm"
   resource_group_name             = azurerm_resource_group.main.name
   location                        = azurerm_resource_group.main.location
-  size                            = "Standard_D8AS_v4"
+  size                            = "Standard_B1s"
+  admin_username                  = var.username
+  admin_password                  = var.password
   disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.main.id
