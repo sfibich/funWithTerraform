@@ -46,7 +46,7 @@ resource "azurerm_public_ip" "pip" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Dynamic"
-  domain_name_label   = random_pet.server.id
+  domain_name_label   = lower(random_pet.server.id)
 }
 
 resource "azurerm_network_interface" "main" {
@@ -75,30 +75,6 @@ resource "azurerm_network_security_group" "access" {
     source_port_range          = "*"
     source_address_prefix      = "*"
     destination_port_range     = "22"
-    destination_address_prefix = azurerm_network_interface.main.private_ip_address
-  }
-
-  security_rule {
-    access                     = "Allow"
-    direction                  = "Inbound"
-    name                       = "vnc"
-    priority                   = 101
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    source_address_prefix      = "*"
-    destination_port_range     = "5901"
-    destination_address_prefix = azurerm_network_interface.main.private_ip_address
-  }
-
-  security_rule {
-    access                     = "Allow"
-    direction                  = "Inbound"
-    name                       = "rdp"
-    priority                   = 102
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    source_address_prefix      = "*"
-    destination_port_range     = "3389"
     destination_address_prefix = azurerm_network_interface.main.private_ip_address
   }
 
