@@ -23,7 +23,7 @@ resource "random_pet" "server" {
 }
 
 resource "azurerm_resource_group" "main" {
-  name     = "work-resources"
+  name     = "${var.prefix}-resources"
   location = var.location
 }
 
@@ -63,7 +63,7 @@ resource "azurerm_network_interface" "main" {
 }
 
 resource "azurerm_network_security_group" "access" {
-  name                = "machine-access"
+  name                = "${var.prefix}-machine-access"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   security_rule {
@@ -97,12 +97,12 @@ resource "azurerm_linux_virtual_machine" "main" {
     azurerm_network_interface.main.id
   ]
 
-  custom_data = base64encode(file("cloud-init01.sh"))
+  custom_data = base64encode(file("cloud-init-debian-10.sh"))
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    publisher = "Debian"
+    offer     = "debian-10"
+    sku       = "10"
     version   = "latest"
   }
 

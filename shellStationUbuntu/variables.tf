@@ -11,7 +11,7 @@ variable "target_subscription_id" {
 variable "prefix" {
 	type = string
   description = "The prefix which should be used for all resources in this module"
-	default = "work"
+	default = "debian"
 }
 
 variable "location" {

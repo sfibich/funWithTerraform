@@ -1,6 +1,6 @@
 #! /bin/sh
 ############################
-# Target:Ubuntu 18.04      #
+# Target:Debian 10         #
 ############################
 sudo timedatectl set-timezone America/New_York
 ############################
@@ -9,21 +9,40 @@ sudo timedatectl set-timezone America/New_York
 sudo touch /tmp/cloud-init.log
 sudo chmod a+w /tmp/cloud-init.log
 echo "cloud init start" >> /tmp/cloud-init.log
+date >> /tmp/cloud-init.log
 cd /home/adminuser
 mkdir installs
-pwd >> /tmp/cloud-init.log
-ls -la >> /tmp/cloud-init.log
-echo "complete:home setup" >> /tmp/cloud-init.log
+echo "complete: home setup" >> /tmp/cloud-init.log
 sudo apt-get update -y 
 sudo apt-get upgrade -y 
 echo "complete: update & upgrade" >> /tmp/cloud-init.log
+
+############################
+# Tools		               #
+############################
+sudo apt-get install gnupg2 -y
+sudo apt install software-properties-common -y
+sudo apt-get install cmake -y
+sudo apt-get install python3.7-dev -y
+
+sudo apt-get install vim-nox -y
+sudo apt-get install tree -y
+sudo apt-get install tmux -y
+sudo apt-get install htop -y
+sudo apt-get install git -y
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+		    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+echo "complete: tools" >> /tmp/cloud-init.log
 
 ############################
 # Terraform                #
 ############################
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install terraform
+sudo apt-get update 
+sudo apt-get install terraform -y
+echo "complete: terraform" >> /tmp/cloud-init.log
 
 ############################
 # java                     #
@@ -31,36 +50,30 @@ sudo apt-get update && sudo apt-get install terraform
 sudo apt-get install default-jdk -y 
 echo "complete: java" >> /tmp/cloud-init.log
 
-############################
-# .Net 5.0                 #
-############################
-wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-sudo apt-get update -y
-sudo apt-get install -y apt-transport-https 
-sudo apt-get update -y
-sudo apt-get install -y dotnet-sdk-5.0
-echo "complete: .net 5.0" >> /tmp/cloud-init.log
 
 ############################
 # Install Powershell       #
 ############################
-echo "Download the Microsoft repository GPG keys" >> /tmp/cloud-init.log
-wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb 
-echo "Register the Microsoft repository GPG keys" >> /tmp/cloud-init.log
-sudo dpkg -i packages-microsoft-prod.deb 
-echo "Update the list of products" >> /tmp/cloud-init.log
-sudo apt-get update -y 
-echo "Enable the universe repositories" >> /tmp/cloud-init.log
-sudo add-apt-repository universe 
-echo "Install PowerShell" >> /tmp/cloud-init.log
-sudo apt-get install -y powershell 
+# Download the Microsoft repository GPG keys
+wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
+
+# Register the Microsoft repository GPG keys
+sudo dpkg -i packages-microsoft-prod.deb
+
+# Update the list of products
+sudo apt-get update
+
+# Install PowerShell
+sudo apt-get install -y powershell
 echo "complete: powershell" >> /tmp/cloud-init.log
+
 
 ############################
 # PowerShell AZ            #
 ############################
-pwsh -command "Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force"
+#pwsh -command "Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force"
+#echo "complete: powershell modules" >> /tmp/cloud-init.log
+
 
 ############################
 # Install AZ Cli           #
@@ -84,28 +97,26 @@ echo "complete:az cli" >> /tmp/cloud-init.log
 ############################
 # Install AZ Func         #
 ############################
-wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-sudo apt-get update
-sudo apt-get install azure-functions-core-tools-3 -y
-
+sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
+sudo apt-get update -y
+sudo apt-get  install azure-functions-core-tools-3 -y
+echo "complete:az func" >> /tmp/cloud-init.log
 
 ############################
 # Install core dev utils   #
 ############################
-sudo apt-get install python3.6-dev -y
-sudo apt-get install python3.8 python3.8-dev python3.8-distutils python3.8-venv -y
-sudo apt-get install cmake
+#sudo apt-get install python3.6-dev -y
+#sudo apt-get install python3.8 python3.8-dev python3.8-distutils python3.8-venv -y
 
 
 ############################
 # Install Python 3.7	   #
 ############################
 
-sudo apt-get install python3.7 -y
-sudo apt-get install python3.7-venv -y
-sudo apt-get install python3.7-dev -y
-sudo apt-get install python3.7-doc -y
+#sudo apt-get install python3.7 -y
+#sudo apt-get install python3.7-venv -y
+#sudo apt-get install python3.7-dev -y
+#sudo apt-get install python3.7-doc -y
 
 
 ############################
@@ -117,34 +128,9 @@ sudo apt-get install python3.7-doc -y
 ############################
 # Git Pulls                #
 ############################
-echo "getting config files from git" >> /tmp/cloud-init.log
-cd ~/
-mkdir repos 
-cd repos 
-git clone https://github.com/adminuser/config.git >>/tmp/cloud-init.log
-git clone https://github.com/adminuser/funWithTerraform.git >>/tmp/cloud-init.log
-ls -la >> /tmp/cloud-init.log
 echo "complete: git"
-
-#VNCPASSWORD
-#echo "installing: setting vncpassword" >> /tmp/cloud-init.log
-#sudo chmod +x repos/configs/vncpassword.sh
-#./configs/vncpassword.sh >> /tmp/cloud-init.log
-
-#echo "complete:vncpasswd" >> /tmp/cloud-init.log
-#VNC Serivce
-#vncserver >> /tmp/cloud-init.log
-#vncserver -kill :1 >> /tmp/cloud-init.log
-#mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
-#cp repos/configs/xstartup .vnc/xstartup
-#sudo chmod +x .vnc/xstartup
-#echo "complete: vnc as a service" >> /tmp/cloud-init.log
-
-#.vmrc FILE
-#.tmux.conf FILE
-#tmux-work.sh FILE
-#cd /home/adminuser/installs
-#echo "complete: workstation" >> /tmp/cloud-init.log
+wget https://raw.githubusercontent.com/sfibich/config/master/.vimrc
+echo "complete: shellStation" >> /tmp/cloud-init.log
 
 ############################
 # finish cloud init        #
@@ -153,4 +139,4 @@ sudo apt-get autoremove -y
 
 echo "complete: cloud init finish" >> /tmp/cloud-init.log
 echo "check /var/log/apt/history.log for apt-get log info" >> /tmp/cloud-init.log
-
+date >> /tmp/cloud-init.log
