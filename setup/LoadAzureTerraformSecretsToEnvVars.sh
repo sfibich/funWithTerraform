@@ -196,7 +196,7 @@ function output_info() {
 	export ARM_TENANT_ID=$ARM_TENANT_ID
 	export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
 	export ARM_ACCESS_KEY=$ARM_ACCESS_KEY
-	echo "terraform init --var='storage_account_name=$BACKEND_STORAGE_ACCOUNT'"
+	echo "terraform init --backend-config='storage_account_name=$BACKEND_STORAGE_ACCOUNT'"
 }
 #####################
 #		MAIN		#
