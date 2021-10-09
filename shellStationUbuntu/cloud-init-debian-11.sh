@@ -64,7 +64,10 @@ wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb
 
 # Register the Microsoft repository GPG keys
 sudo dpkg -i packages-microsoft-prod.deb
-mv packages-microsoft-prod.deb installs/pakcages-microsoft-prod.deb
+mv packages-microsoft-prod.deb installs/packages-microsoft-prod.deb
+
+# Register the Microsoft Product feed (Not in MS repo for Bullseye, had to use buster)
+sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-buster-prod buster main" > /etc/apt/sources.list.d/microsoft.list'
 
 # Update the list of products
 sudo apt-get update
