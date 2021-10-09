@@ -2,16 +2,20 @@
 ############################
 # Target:Debian 11         #
 ############################
-sudo timedatectl set-timezone America/New_York
+sleep 20
+
+user_name=adminuser
+
 ############################
 # start cloud init         #
 ############################
-sleep 20
+
+sudo timedatectl set-timezone America/New_York
 sudo touch /tmp/cloud-init.log
 sudo chmod a+w /tmp/cloud-init.log
 echo "cloud init start" >> /tmp/cloud-init.log
 date >> /tmp/cloud-init.log
-cd /home/adminuser
+cd /home/$user_name
 mkdir installs
 echo "complete: home setup" >> /tmp/cloud-init.log
 sudo apt-get update -y 
@@ -31,9 +35,8 @@ sudo apt-get install tree -y
 sudo apt-get install tmux -y
 sudo apt-get install htop -y
 sudo apt-get install git -y
-#mkdir /home/adminuser/.vim
-#mkdir /home/adminuser/.vim/autoload
-curl -fLo /home/adminuser/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+curl -fLo /home/$user_name/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+sudo chown -R $user_name:$user_name .vim
 
 echo "complete: tools" >> /tmp/cloud-init.log
 
@@ -57,10 +60,11 @@ echo "complete: java" >> /tmp/cloud-init.log
 # Install Powershell       #
 ############################
 # Download the Microsoft repository GPG keys
-wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
+wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb
 
 # Register the Microsoft repository GPG keys
 sudo dpkg -i packages-microsoft-prod.deb
+mv packages-microsoft-prod.deb installs/pakcages-microsoft-prod.deb
 
 # Update the list of products
 sudo apt-get update
@@ -128,11 +132,13 @@ sudo apt-get install python3.9-doc -y
 ############################
 echo "complete: git"
 wget https://raw.githubusercontent.com/sfibich/config/master/.vimrc
+sudo chown $user_name:$user_name .vimrc
 echo "complete: shellStation" >> /tmp/cloud-init.log
 
 ############################
 # finish cloud init        #
 ############################
+sudo chown -R $user_name:$user_name installs
 sudo apt-get autoremove -y 
 
 echo "complete: cloud init finish" >> /tmp/cloud-init.log
