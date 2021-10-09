@@ -24,14 +24,16 @@ echo "complete: update & upgrade" >> /tmp/cloud-init.log
 sudo apt-get install gnupg2 -y
 sudo apt-get install software-properties-common -y
 sudo apt-get install cmake -y
-sudo apt-get install python3.7-dev -y
-sudo apt-get install build-essential
+sudo apt-get install python3.9-dev -y
+sudo apt-get install build-essential -y
 sudo apt-get install vim-nox -y
 sudo apt-get install tree -y
 sudo apt-get install tmux -y
 sudo apt-get install htop -y
 sudo apt-get install git -y
-#curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+#mkdir /home/adminuser/.vim
+#mkdir /home/adminuser/.vim/autoload
+curl -fLo /home/adminuser/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 echo "complete: tools" >> /tmp/cloud-init.log
 
@@ -110,10 +112,10 @@ echo "complete: az func" >> /tmp/cloud-init.log
 
 
 ############################
-# Install Python 3.7	   #
+# Install Python 3.9	   #
 ############################
-sudo apt-get install python3.7-venv -y
-sudo apt-get install python3.7-doc -y
+sudo apt-get install python3.9-venv -y
+sudo apt-get install python3.9-doc -y
 
 
 ############################
