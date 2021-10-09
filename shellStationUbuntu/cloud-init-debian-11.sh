@@ -1,11 +1,12 @@
-#! /bin/sh
+#!/bin/bash
 ############################
-# Target:Debian 10         #
+# Target:Debian 11         #
 ############################
 sudo timedatectl set-timezone America/New_York
 ############################
 # start cloud init         #
 ############################
+sleep 20
 sudo touch /tmp/cloud-init.log
 sudo chmod a+w /tmp/cloud-init.log
 echo "cloud init start" >> /tmp/cloud-init.log
@@ -21,17 +22,16 @@ echo "complete: update & upgrade" >> /tmp/cloud-init.log
 # Tools		               #
 ############################
 sudo apt-get install gnupg2 -y
-sudo apt install software-properties-common -y
+sudo apt-get install software-properties-common -y
 sudo apt-get install cmake -y
 sudo apt-get install python3.7-dev -y
-
+sudo apt-get install build-essential
 sudo apt-get install vim-nox -y
 sudo apt-get install tree -y
 sudo apt-get install tmux -y
 sudo apt-get install htop -y
 sudo apt-get install git -y
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-		    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+#curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 echo "complete: tools" >> /tmp/cloud-init.log
 
@@ -100,7 +100,7 @@ echo "complete:az cli" >> /tmp/cloud-init.log
 sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
 sudo apt-get update -y
 sudo apt-get  install azure-functions-core-tools-3 -y
-echo "complete:az func" >> /tmp/cloud-init.log
+echo "complete: az func" >> /tmp/cloud-init.log
 
 ############################
 # Install core dev utils   #
@@ -112,17 +112,13 @@ echo "complete:az func" >> /tmp/cloud-init.log
 ############################
 # Install Python 3.7	   #
 ############################
-
-#sudo apt-get install python3.7 -y
-#sudo apt-get install python3.7-venv -y
-#sudo apt-get install python3.7-dev -y
-#sudo apt-get install python3.7-doc -y
+sudo apt-get install python3.7-venv -y
+sudo apt-get install python3.7-doc -y
 
 
 ############################
 # Work in Progress below   #
 ############################
-
 
 
 ############################

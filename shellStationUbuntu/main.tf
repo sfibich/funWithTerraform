@@ -80,8 +80,8 @@ resource "azurerm_network_security_group" "access" {
 
 }
 
-resource "azurerm_network_interface_security_group_association" "main" {
-  network_interface_id      = azurerm_network_interface.main.id
+resource "azurerm_subnet_network_security_group_association" "main" {
+  subnet_id      = azurerm_subnet.internal.id
   network_security_group_id = azurerm_network_security_group.access.id
 }
 
@@ -97,13 +97,13 @@ resource "azurerm_linux_virtual_machine" "main" {
     azurerm_network_interface.main.id
   ]
 
-  custom_data = base64encode(file("cloud-init-debian-10.sh"))
+  custom_data = base64encode(file("cloud-init-debian-11.sh"))
 
   source_image_reference {
     publisher = "Debian"
-    offer     = "debian-10"
-    sku       = "10"
-    version   = "latest"
+    offer     = "debian-11"
+    sku       = "11"
+    version   = "0.20210814.734"
   }
 
   os_disk {
